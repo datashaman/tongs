@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Pipes;
+namespace Datashaman\Tongs\Plugins;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-final class DraftsPipe extends Pipe
+final class DraftsPlugin extends Plugin
 {
     public function handle(Collection $files, callable $next): Collection
     {

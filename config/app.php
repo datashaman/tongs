@@ -2,11 +2,10 @@
 
 return [
     'name' => 'Tongs',
-    'production' => true,
+    'production' => false,
     'providers' => [
-        Illuminate\Pipeline\PipelineServiceProvider::class,
-        Illuminate\View\ViewServiceProvider::class,
-        App\Providers\AppServiceProvider::class,
+        Datashaman\Tongs\Providers\ViewServiceProvider::class,
+        Datashaman\Tongs\Providers\AppServiceProvider::class,
     ],
     'version' => app('git.version'),
 ];

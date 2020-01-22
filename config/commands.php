@@ -4,7 +4,7 @@ return [
     'add' => [
         // ..
     ],
-    'default' => App\Commands\BuildCommand::class,
+    'default' => Datashaman\Tongs\Commands\BuildCommand::class,
     'hidden' => [
         NunoMaduro\LaravelConsoleSummary\SummaryCommand::class,
         Symfony\Component\Console\Command\HelpCommand::class,

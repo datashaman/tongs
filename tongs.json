@@ -1,0 +1,14 @@
+{
+  "source": "src",
+  "destination": "build",
+  "plugins": {
+    "Datashaman\\Tongs\\Plugins\\DraftsPlugin": true,
+    "Datashaman\\Tongs\\Plugins\\MarkdownPlugin": {
+      "breaksEnabled": true
+    },
+    "Datashaman\\Tongs\\Plugins\\SassPlugin": {
+      "outputStyle": "expanded"
+    },
+    "Datashaman\\Tongs\\Plugins\\ViewsPlugin": true
+  }
+}

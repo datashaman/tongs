@@ -2,21 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Pipes;
+namespace Datashaman\Tongs\Plugins;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
 
-final class SassPipe extends Pipe
+final class SassPlugin extends Plugin
 {
     public function handle(Collection $files, callable $next): Collection
     {
         $files = $files
             ->mapWithKeys(
                 function ($file) {
-                    $extension = File::extension($file['path']);
+                    $extension = File::extension(
+                        "{$this->config['source']}/{$file['path']}"
+                    );
                     if (in_array($extension, ['sass', 'scss'])) {
                         $file['contents'] = $this->transform($file);
                         $file['path'] = preg_replace(
@@ -54,7 +56,8 @@ final class SassPipe extends Pipe
      */
     protected function command(array $file): array
     {
-        $fullPath = $this->source->path($file['path']);
+        $fullPath = "{$this->config['source']}/${file['path']}";
+
         $options = $this->options
             ->map(
                 static function ($value, $key) {

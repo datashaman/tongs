@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Pipes;
+namespace Datashaman\Tongs\Plugins;
 
 use Illuminate\Support\Collection;
 
-final class CollectionsPipe extends Pipe
+final class CollectionsPlugin extends Plugin
 {
     public function handle(Collection $files, callable $next): Collection
     {

@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Pipes;
+namespace Datashaman\Tongs\Plugins;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Parsedown;
 use Webuni\FrontMatter\FrontMatter;
 
-final class MarkdownPipe extends Pipe
+final class MarkdownPlugin extends Plugin
 {
     public function handle(Collection $files, callable $next): Collection
     {
         $files = $files
             ->mapWithKeys(
-                function ($file, $path) {
-                    if (File::extension($this->source->path($path)) === 'md') {
+                function ($file) {
+                    if (File::extension("{$this->config['source']}/{$file['path']}") === 'md') {
                         $file = $this->transform($file);
                     }
 

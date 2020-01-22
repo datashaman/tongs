@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Commands;
+namespace Datashaman\Tongs\Commands;
 
-use Illuminate\Contracts\Pipeline\Hub;
+use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use LaravelZero\Framework\Commands\Command;
 
 final class BuildCommand extends Command
@@ -15,54 +15,91 @@ final class BuildCommand extends Command
     /**
      * @var string
      */
-    protected $signature = 'build';
+    protected $signature = 'build {--config=tongs.json}';
 
     /**
      * @var string
      */
     protected $description = 'Build static site.';
 
-    public function handle(Hub $hub)
+    public function handle()
     {
-        $files = $this->runPipe($hub);
+        $config = $this->getConfig();
+        $files = $this->runPipeline($config);
 
         $this->info(
             $files->count() .
                 ' files written to ' .
-                Storage::disk(config('tongs.destination', 'build'))->path(''),
+                Arr::get($config, 'destination', 'build'),
         );
     }
 
-    protected function runPipe(Hub $hub): Collection
+    protected function getConfig(): array
     {
-        return $hub->pipe($this->prepareFiles())->then(
-            static function ($files) {
-                return $files->map(
-                    static function ($file) {
-                        $destination = config('tongs.destination', 'build');
-                        $disk = Storage::disk($destination);
+        $configFile = $this->option('config', 'tongs.json');
 
-                        $disk->put($file['path'], $file['contents']);
+        if (!File::exists($configFile)) {
+            $this->error('Cannot find file ' . $configFile);
+            exit(-1);
+        }
 
-                        return $file;
+        $defaults = ['source' => 'src', 'destination' => 'build'];
+
+        $config = json_decode(File::get($configFile), true);
+        return array_merge($defaults, $config);
+    }
+
+    protected function runPipeline(array $config): Collection
+    {
+        $plugins = collect(Arr::get($config, 'plugins', []))
+            ->map(
+                static function ($options, $class) use ($config) {
+                    if ($options === true) {
+                        return new $class($config);
                     }
-                );
-            }
-        );
+
+                    return new $class($config, $options);
+                }
+            )
+            ->all();
+
+        $files = $this->prepareFiles($config);
+
+        return (new Pipeline($this->app))
+            ->send($files)
+            ->through($plugins)
+            ->then(
+                static function ($files) use ($config) {
+                    return $files->map(
+                        static function ($file) use ($config) {
+                            $fullPath = "${config['destination']}/${file['path']}";
+                            File::makeDirectory(
+                                File::dirname($fullPath),
+                                0755,
+                                true,
+                                true
+                            );
+                            File::put($fullPath, $file['contents']);
+
+                            return $file;
+                        }
+                    );
+                }
+            );
     }
 
-    protected function prepareFiles(): Collection
+    protected function prepareFiles(array $config): Collection
     {
-        $source = config('tongs.source', 'source');
-        $disk = Storage::disk($source);
+        $source = Arr::get($config, 'source', 'src');
+        $allFiles = File::allFiles($source);
 
-        return collect($disk->allFiles())->mapWithKeys(
-            static function ($path) use ($disk) {
+        return collect($allFiles)->mapWithKeys(
+            static function ($file) {
+                $path = $file->getRelativePathname();
+
                 return [
                     $path => [
-                        'contents' => $disk->get($path),
-                        'mode' => File::chmod($disk->path($path)),
-                        'stat' => stat($disk->path($path)),
+                        'contents' => $file->getContents(),
                         'path' => $path,
                     ],
                 ];

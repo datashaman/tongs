@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Datashaman\Tongs\Plugins;
 
+use Datashaman\Tongs\Tongs;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\View\Compilers\BladeCompiler;
@@ -12,9 +13,9 @@ use Illuminate\View\FileViewFinder;
 
 final class ViewsPlugin extends Plugin
 {
-    public function __construct(array $config, array $options = [])
+    public function __construct(Tongs $tongs, array $options = [])
     {
-        parent::__construct($config, $options);
+        parent::__construct($tongs, $options);
 
         $this->registerViewFinder();
         $this->registerBladeCompiler();
@@ -37,11 +38,11 @@ final class ViewsPlugin extends Plugin
 
     protected function registerBladeCompiler()
     {
-        app()->singleton('blade.compiler', function () {
+        app()->singleton('blade.compiler', function ($app) {
             $compiled = Arr::get($this->options, 'compiled', 'storage/framework/views');
 
             return new BladeCompiler(
-                app()->get('files'), $compiled
+                $app['files'], $compiled
             );
         });
     }
@@ -53,8 +54,10 @@ final class ViewsPlugin extends Plugin
                 function ($file) {
                     $view = Arr::get($file, 'data.view');
 
+                    $locals = array_merge($this->tongs->metadata(), $file);
+
                     if ($view) {
-                        $file['contents'] = $this->view($view, $file);
+                        $file['contents'] = $this->view($view, $locals);
                     }
 
                     return $file;

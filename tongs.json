@@ -1,4 +1,11 @@
 {
+  "metadata": {
+    "author": {
+      "link": "https://datashaman.com/",
+      "name": "Marlin Forbes",
+      "nickname": "datashaman"
+    }
+  },
   "source": "src",
   "destination": "build",
   "plugins": {

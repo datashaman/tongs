@@ -17,7 +17,9 @@ final class SassPlugin extends Plugin
             ->mapWithKeys(
                 function ($file) {
                     $extension = File::extension(
-                        "{$this->config['source']}/{$file['path']}"
+                        $this->tongs->source() .
+                        DIRECTORY_SEPARATOR .
+                        $file['path']
                     );
                     if (in_array($extension, ['sass', 'scss'])) {
                         $file['contents'] = $this->transform($file);
@@ -56,7 +58,7 @@ final class SassPlugin extends Plugin
      */
     protected function command(array $file): array
     {
-        $fullPath = "{$this->config['source']}/${file['path']}";
+        $fullPath = $this->tongs->source() . DIRECTORY_SEPARATOR . $file['path'];
 
         $options = $this->options
             ->map(

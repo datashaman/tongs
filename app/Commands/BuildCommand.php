@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Datashaman\Tongs\Commands;
 
+use Datashaman\Tongs\Tongs;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -25,12 +26,53 @@ final class BuildCommand extends Command
     public function handle()
     {
         $config = $this->getConfig();
-        $files = $this->runPipeline($config);
 
-        $this->info(
-            $files->count() .
-                ' files written to ' .
-                Arr::get($config, 'destination', 'build'),
+        $tongs = new Tongs(getcwd());
+
+        if (Arr::has($config, 'source')) {
+            $tongs->source($config['source']);
+        }
+
+        if (Arr::has($config, 'destination')) {
+            $tongs->destination($config['destination']);
+        }
+
+        if (Arr::has($config, 'metadata')) {
+            $tongs->metadata($config['metadata']);
+        }
+
+        if (Arr::has($config, 'clean')) {
+            $tongs->clean($config['clean']);
+        }
+
+        if (Arr::has($config, 'frontmatter')) {
+            $tongs->frontmatter($config['frontmatter']);
+        }
+
+        if (Arr::has($config, 'ignore')) {
+            $tongs->ignore($config['ignore']);
+        }
+
+        collect(Arr::get($config, 'plugins', []))
+            ->each(
+                static function ($options, $class) use ($tongs) {
+                    $plugin = $options === true
+                        ? new $class($tongs)
+                        : new $class($tongs, $options);
+
+                    $tongs->use($plugin);
+                }
+            );
+
+        $tongs->build(
+            function ($err, $files) use ($tongs) {
+                if ($err) {
+                    $this->error($err->getMessage());
+                    exit(-1);
+                }
+
+                $this->info('Successfully built ' . $files->count() . ' files to ' . $tongs->destination());
+            }
         );
     }
 
@@ -49,61 +91,4 @@ final class BuildCommand extends Command
         return array_merge($defaults, $config);
     }
 
-    protected function runPipeline(array $config): Collection
-    {
-        $plugins = collect(Arr::get($config, 'plugins', []))
-            ->map(
-                static function ($options, $class) use ($config) {
-                    if ($options === true) {
-                        return new $class($config);
-                    }
-
-                    return new $class($config, $options);
-                }
-            )
-            ->all();
-
-        $files = $this->prepareFiles($config);
-
-        return (new Pipeline($this->app))
-            ->send($files)
-            ->through($plugins)
-            ->then(
-                static function ($files) use ($config) {
-                    return $files->map(
-                        static function ($file) use ($config) {
-                            $fullPath = "${config['destination']}/${file['path']}";
-                            File::makeDirectory(
-                                File::dirname($fullPath),
-                                0755,
-                                true,
-                                true
-                            );
-                            File::put($fullPath, $file['contents']);
-
-                            return $file;
-                        }
-                    );
-                }
-            );
-    }
-
-    protected function prepareFiles(array $config): Collection
-    {
-        $source = Arr::get($config, 'source', 'src');
-        $allFiles = File::allFiles($source);
-
-        return collect($allFiles)->mapWithKeys(
-            static function ($file) {
-                $path = $file->getRelativePathname();
-
-                return [
-                    $path => [
-                        'contents' => $file->getContents(),
-                        'path' => $path,
-                    ],
-                ];
-            }
-        );
-    }
 }

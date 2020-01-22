@@ -2,10 +2,9 @@
   "name": "datashaman/tongs",
   "description": "Metalsmith-alike for Laravel.",
   "keywords": [
-    "framework",
+    "metalsmith",
     "laravel",
-    "laravel zero",
-    "console",
+    "static site generator",
     "cli"
   ],
   "type": "project",
@@ -22,7 +21,6 @@
   ],
   "require": {
     "php": "^7.2",
-    "dnoegel/php-xdg-base-dir": "^0.1.1",
     "erusev/parsedown": "^1.7",
     "illuminate/pipeline": "^6.12",
     "illuminate/view": "^6.12",

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Datashaman\Tongs\Plugins;
 
+use Datashaman\Tongs\Tongs;
 use Illuminate\Filesystem\FilesystemAdapter;
 
 abstract class Plugin
 {
     /**
-     * @var array
+     * @var Tongs
      */
-    protected $config;
+    protected $tongs;
 
     /**
      * @var array
@@ -19,12 +20,12 @@ abstract class Plugin
     protected $options;
 
     /**
-     * @param array $config
+     * @param Tongs $tongs
      * @param array $options
      */
-    public function __construct(array $config, array $options = [])
+    public function __construct(Tongs $tongs, array $options = [])
     {
-        $this->config = collect($config);
+        $this->tongs = $tongs;
         $this->options = collect($options);
     }
 }

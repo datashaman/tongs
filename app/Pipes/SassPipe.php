@@ -36,9 +36,9 @@ final class SassPipe extends Pipe
     /**
      * @param array $file
      *
-     * @return array
+     * @return string
      */
-    protected function transform(array $file): array
+    protected function transform(array $file): string
     {
         $cmd = $this->command($file);
         $process = new Process($cmd);

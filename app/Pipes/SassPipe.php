@@ -28,7 +28,11 @@ class SassPipe extends Pipe
                             ->join(' ');
 
                         $file['contents']= `node-sass $options $fullPath`;
-                        $file['path'] = preg_replace("/\.{$extension}$/", '.css', $file['path']);
+                        $file['path'] = preg_replace(
+                            "/\.{$extension}$/",
+                            '.css',
+                            $file['path']
+                        );
                     }
 
                     return [

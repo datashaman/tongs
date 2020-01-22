@@ -23,7 +23,8 @@ class Pipe
      */
     protected $factory;
 
-    public function __construct(array $options = []) {
+    public function __construct(array $options = [])
+    {
         $this->options = collect($options);
         $this->source = Storage::disk(config('tongs.source', 'source'));
         $this->factory = resolve(Factory::class);

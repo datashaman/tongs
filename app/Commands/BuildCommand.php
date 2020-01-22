@@ -49,15 +49,13 @@ class BuildCommand extends Command
         return collect($disk->allFiles())->mapWithKeys(function ($path) use (
             $disk
         ) {
-            $file = [
-                'contents' => $disk->get($path),
-                'mode' => $this->app['files']->chmod($disk->path($path)),
-                'stat' => stat($disk->path($path)),
-                'path' => $path,
-            ];
-
             return [
-                $path => $file,
+                $path => [
+                    'contents' => $disk->get($path),
+                    'mode' => $this->app['files']->chmod($disk->path($path)),
+                    'stat' => stat($disk->path($path)),
+                    'path' => $path,
+                ],
             ];
         });
     }

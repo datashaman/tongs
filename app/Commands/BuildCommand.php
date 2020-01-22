@@ -23,16 +23,20 @@ class BuildCommand extends Command
 
     public function handle(Hub $hub)
     {
-        $files = $hub->pipe($this->prepareFiles())->then(function ($files) {
-            return $files->map(function ($file) {
-                $destination = config('tongs.destination', 'build');
-                $disk = Storage::disk($destination);
+        $files = $hub->pipe($this->prepareFiles())->then(
+            function ($files) {
+                return $files->map(
+                    function ($file) {
+                        $destination = config('tongs.destination', 'build');
+                        $disk = Storage::disk($destination);
 
-                $disk->put($file['path'], $file['contents']);
+                        $disk->put($file['path'], $file['contents']);
 
-                return $file;
-            });
-        });
+                        return $file;
+                    }
+                );
+            }
+        );
 
         $this->info(
             $files->count() .
@@ -46,17 +50,17 @@ class BuildCommand extends Command
         $source = config('tongs.source', 'source');
         $disk = Storage::disk($source);
 
-        return collect($disk->allFiles())->mapWithKeys(function ($path) use (
-            $disk
-        ) {
-            return [
-                $path => [
-                    'contents' => $disk->get($path),
-                    'mode' => $this->app['files']->chmod($disk->path($path)),
-                    'stat' => stat($disk->path($path)),
-                    'path' => $path,
-                ],
-            ];
-        });
+        return collect($disk->allFiles())->mapWithKeys(
+            function ($path) use ($disk) {
+                return [
+                    $path => [
+                        'contents' => $disk->get($path),
+                        'mode' => $this->app['files']->chmod($disk->path($path)),
+                        'stat' => stat($disk->path($path)),
+                        'path' => $path,
+                    ],
+                ];
+            }
+        );
     }
 }

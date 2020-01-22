@@ -44,19 +44,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Hub $hub)
     {
-        $hub->defaults(function ($pipeline, $object) {
-            $pipes = collect($this->pipes)
-                ->map(function ($pipe) {
-                    if (is_array($pipe) && is_array($pipe[1])) {
-                        [$class, $options] = $pipe;
-                        $pipe = new $class($options);
-                    }
+        $hub->defaults(
+            function ($pipeline, $object) {
+                $pipes = collect($this->pipes)
+                    ->map(
+                        function ($pipe) {
+                            if (is_array($pipe) && is_array($pipe[1])) {
+                                [$class, $options] = $pipe;
+                                $pipe = new $class($options);
+                            }
 
-                    return $pipe;
-                })
-                ->all();
-            return $pipeline->send($object)->through($pipes);
-        });
+                            return $pipe;
+                        }
+                    )
+                    ->all();
+
+                return $pipeline->send($object)->through($pipes);
+            }
+        );
     }
 
     /**

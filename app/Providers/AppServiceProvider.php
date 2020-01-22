@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use App\Pipes;
 use Illuminate\Contracts\Pipeline\Hub;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+final class AppServiceProvider extends ServiceProvider
 {
     /**
      * @var array
@@ -48,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
             function ($pipeline, $object) {
                 $pipes = collect($this->pipes)
                     ->map(
-                        function ($pipe) {
+                        static function ($pipe) {
                             if (is_array($pipe) && is_array($pipe[1])) {
                                 [$class, $options] = $pipe;
                                 $pipe = new $class($options);

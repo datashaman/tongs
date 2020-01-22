@@ -1,15 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Pipes;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
-class DraftsPipe extends Pipe
+final class DraftsPipe extends Pipe
 {
-    public function handle($files, $next)
+    public function handle(Collection $files, callable $next): Collection
     {
         $files = $files->reject(
-            function ($file) {
+            static function ($file) {
                 return Arr::get($file, 'data.draft');
             }
         );

@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Pipes;
 
-class CollectionsPipe extends Pipe
+use Illuminate\Support\Collection;
+
+final class CollectionsPipe extends Pipe
 {
-    public function handle($files, $next)
+    public function handle(Collection $files, callable $next): Collection
     {
         $files = $files
             ->map(
                 function ($file, $path) {
                     collect($this->options)
                         ->each(
-                            function ($defn) {
+                            static function ($defn): void {
                                 if (fnmatch($defn['match'], $path)) {
                                     // add metadata for collections
                                 }

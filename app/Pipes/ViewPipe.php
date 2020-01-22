@@ -1,17 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Pipes;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
-class ViewPipe extends Pipe
+final class ViewPipe extends Pipe
 {
-    public function handle($files, $next)
+    public function handle(Collection $files, callable $next): Collection
     {
         $files = $files
             ->map(
-                function ($file, $path) {
-                    if ($view = Arr::get($file, 'data.view')) {
+                function ($file) {
+                    $view = Arr::get($file, 'data.view');
+
+                    if ($view) {
                         $file['contents'] = $this->view($view, $file);
                     }
 

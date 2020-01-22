@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Metalsmith-alike in Laravel. WIP.",
   "dependencies": {
-    "node-sass": "^4.13.1"
+    "node-sass": "^4.13.1",
+    "purecss": "^1.0.1"
   },
   "devDependencies": {
     "husky": "^4.2.0",

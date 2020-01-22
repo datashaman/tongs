@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Pipes;
 
-use Illuminate\Container\Container;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Parsedown;
 use Webuni\FrontMatter\FrontMatter;
 
-class MarkdownPipe extends Pipe
+final class MarkdownPipe extends Pipe
 {
-    public function handle($files, $next)
+    public function handle(Collection $files, callable $next): Collection
     {
         $files = $files
             ->mapWithKeys(
@@ -35,19 +37,26 @@ class MarkdownPipe extends Pipe
         $file['data'] = $document->getData();
         $contents = $document->getContent();
 
-        $parser = new Parsedown();
-
-        $this->options
-            ->each(
-                function ($value, $key) use ($parser) {
-                    $methodName = 'set' . ucfirst($key);
-                    $parser->$methodName($value);
-                }
-            );
+        $parser = $this->getParser();
 
         $file['contents'] = $parser->text($contents);
         $file['path'] = preg_replace('/\.md$/', '.html', $file['path']);
 
         return $file;
+    }
+
+    protected function getParser(): Parsedown
+    {
+        $parser = new Parsedown();
+
+        $this->options
+            ->each(
+                static function ($value, $key) use ($parser) {
+                    $methodName = 'set' . ucfirst($key);
+                    $parser->$methodName($value);
+                }
+            );
+
+        return $parser;
     }
 }

@@ -282,30 +282,4 @@ class Tongs extends Fluent
                 }
             );
     }
-
-    /*
-    public function build(): Collection
-    {
-        $plugins = collect(Arr::get($this->config, 'plugins', []))
-            ->map(
-                static function ($options, $class) {
-                    if ($options === true) {
-                        return new $class($this->config);
-                    }
-
-                    return new $class($this->config, $options);
-                }
-            )
-            ->all();
-
-        $files = $this->prepareFiles($config);
-
-        File::deleteDirectory($config['destination']);
-
-    }
-
-    protected function prepareFiles(array $config): Collection
-    {
-    }
-     */
 }

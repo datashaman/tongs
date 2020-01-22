@@ -54,7 +54,10 @@ final class ViewsPlugin extends Plugin
                 function ($file) {
                     $view = Arr::get($file, 'data.view');
 
-                    $locals = array_merge($this->tongs->metadata(), $file);
+                    $locals = array_merge(
+                        $this->tongs->metadata(),
+                        $file
+                    );
 
                     if ($view) {
                         $file['contents'] = $this->view($view, $locals);

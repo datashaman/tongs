@@ -4,6 +4,10 @@
       "link": "https://datashaman.com/",
       "name": "Marlin Forbes",
       "nickname": "datashaman"
+    },
+    "site": {
+      "link": "https://datashaman-metalsmith.now.sh/",
+      "title": "datashaman"
     }
   },
   "source": "src",
@@ -15,6 +19,9 @@
     },
     "Datashaman\\Tongs\\Plugins\\SassPlugin": {
       "outputStyle": "expanded"
+    },
+    "Datashaman\\Tongs\\Plugins\\CollectionsPlugin": {
+      "posts": "posts/*.html"
     },
     "Datashaman\\Tongs\\Plugins\\ViewsPlugin": true
   }

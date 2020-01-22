@@ -12,40 +12,53 @@ final class CollectionsPlugin extends Plugin
     {
         $metadata = $this->tongs->metadata();
 
-        $this->options
-            ->keys()
+        $keys = $this->options->keys();
+
+        $keys
             ->each(
                 function ($key) use (&$metadata) {
                     $metadata[$key] = [];
                 }
             );
 
-        $files = $files
-            ->map(
-                function ($file) {
+        $files
+            ->each(
+                function ($file) use (&$metadata) {
                     collect($this->options)
                         ->each(
-                            static function ($defn, $name): void {
+                            static function ($defn, $key) use ($file, &$metadata): void {
                                 if (is_string($defn)) {
                                     $defn = [
                                         'match' => $defn,
                                     ];
                                 }
 
-                                $matches = fnmatch($defn['match'], $file['path']);
-
-                                if ($matches) {
-                                    collect($matches)
-                                        ->each(
-                                            function ($match) {
-                                                dd($match);
-                                            }
-                                        );
+                                if (fnmatch($defn['match'], $file['path'])) {
+                                    $metadata[$key] = $metadata[$key] ?? [];
+                                    array_push($metadata[$key], $file);
                                 }
                             }
                         );
                 }
             );
+
+        $keys
+            ->each(
+                function ($key) use (&$metadata) {
+                    $metadata[$key] = $metadata[$key] ?? [];
+                }
+            );
+
+        $metadata['collections'] = [];
+
+        $keys
+            ->each(
+                function ($key) use (&$metadata) {
+                    $metadata['collection'][$key] = $metadata[$key];
+                }
+            );
+
+        $this->tongs->metadata($metadata);
 
         return $next($files);
     }

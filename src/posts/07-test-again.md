@@ -1,5 +1,5 @@
 ---
-layout: post.njk
+view: post
 date: 2020-01-18 12:00:00
 ---
 

@@ -16,7 +16,8 @@ final class MarkdownPlugin extends Plugin
         $files = $files
             ->mapWithKeys(
                 function ($file) {
-                    if (File::extension($this->tongs->path($this->tongs->source(), $file['path'])) === 'md') {
+                    if (File::extension($file['path']) === 'md') {
+                        dump($file['path']);
                         $file = $this->transform($file);
                     }
 

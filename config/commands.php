@@ -4,7 +4,7 @@ return [
     'add' => [
         // ..
     ],
-    'default' => NunoMaduro\LaravelConsoleSummary\SummaryCommand::class,
+    'default' => App\Commands\BuildCommand::class,
     'hidden' => [
         NunoMaduro\LaravelConsoleSummary\SummaryCommand::class,
         Symfony\Component\Console\Command\HelpCommand::class,

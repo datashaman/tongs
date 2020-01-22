@@ -2,8 +2,6 @@
 
 namespace App\Pipes;
 
-use Illuminate\Container\Container;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\Factory;
@@ -16,11 +14,6 @@ class Pipe
     protected $options;
 
     /**
-     * @var Filesystem
-     */
-    protected $filesystem;
-
-    /**
      * @var FilesystemAdapter
      */
     protected $source;
@@ -30,15 +23,10 @@ class Pipe
      */
     protected $factory;
 
-    public function __construct(
-        array $options = [],
-        Filesystem $filesystem,
-        Factory $factory
-    ) {
-        $this->options = $options;
-        $this->filesystem = $filesystem;
+    public function __construct(array $options = []) {
+        $this->options = collect($options);
         $this->source = Storage::disk(config('tongs.source', 'source'));
-        $this->factory = $factory;
+        $this->factory = resolve(Factory::class);
     }
 
     protected function view($view, $data = [])

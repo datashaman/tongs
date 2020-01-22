@@ -1,7 +1,13 @@
 {
     "name": "datashaman/tongs",
     "description": "Metalsmith-alike for Laravel.",
-    "keywords": ["framework", "laravel", "laravel zero", "console", "cli"],
+    "keywords": [
+        "framework",
+        "laravel",
+        "laravel zero",
+        "console",
+        "cli"
+    ],
     "type": "project",
     "license": "MIT",
     "support": {
@@ -16,6 +22,7 @@
     ],
     "require": {
         "php": "^7.2",
+        "dnoegel/php-xdg-base-dir": "^0.1.1",
         "erusev/parsedown": "^1.7",
         "illuminate/pipeline": "^6.12",
         "illuminate/view": "^6.12",
@@ -48,5 +55,7 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "bin": ["tongs"]
+    "bin": [
+        "tongs"
+    ]
 }

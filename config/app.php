@@ -2,7 +2,7 @@
 
 return [
     'name' => 'Tongs',
-    'production' => false,
+    'production' => true,
     'providers' => [
         Illuminate\Pipeline\PipelineServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,

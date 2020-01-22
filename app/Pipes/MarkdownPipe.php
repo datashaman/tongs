@@ -3,7 +3,7 @@
 namespace App\Pipes;
 
 use Illuminate\Container\Container;
-use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\File;
 use Parsedown;
 use Webuni\FrontMatter\FrontMatter;
 
@@ -14,7 +14,7 @@ class MarkdownPipe extends Pipe
         $files = $files
             ->mapWithKeys(
                 function ($file, $path) {
-                    if ($this->filesystem->extension($this->source->path($path)) === 'md') {
+                    if (File::extension($this->source->path($path)) === 'md') {
                         $file = $this->transform($file);
                     }
 
@@ -36,6 +36,14 @@ class MarkdownPipe extends Pipe
         $contents = $document->getContent();
 
         $parser = new Parsedown();
+
+        $this->options
+            ->each(
+                function ($value, $key) use ($parser) {
+                    $methodName = 'set' . ucfirst($key);
+                    $parser->$methodName($value);
+                }
+            );
 
         $file['contents'] = $parser->text($contents);
         $file['path'] = preg_replace('/\.md$/', '.html', $file['path']);

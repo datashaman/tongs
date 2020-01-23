@@ -262,7 +262,7 @@ class TongsTest extends TestCase
         $file = $tongs->readFile('index.md');
     }
 
-    public function testWriteDirectory()
+    public function testWriteDestinationDirectory()
     {
         $tongs = new Tongs($this->fixture('write'));
         $files = [
@@ -272,6 +272,19 @@ class TongsTest extends TestCase
         ];
         $tongs->write($files);
         $this->assertDirs($this->fixture('write/expected'), $this->fixture('write/build'));
+    }
+
+    public function testWriteProvidedDirectory()
+    {
+        $tongs = new Tongs($this->fixture('write-dir'));
+        $files = [
+            'index.md' => [
+                'contents' => 'body',
+            ],
+        ];
+        $dir = $this->fixture('write-dir/out');
+        $tongs->write($files, $dir);
+        $this->assertDirs($this->fixture('write-dir/expected'), $this->fixture('write-dir/out'));
     }
 
     protected function assertDirs(string $expected, string $actual)

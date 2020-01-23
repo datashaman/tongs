@@ -4,7 +4,7 @@
 @foreach($posts as $post)
   <article class="pure-g">
     <div class="pure-u-1-6">
-      <a href="{{ $post['path'] }}"><time>{{ @$post['date'] }}</time></a>
+        <a href="{{ $post['path'] }}"><time>{{ @$post['date'] ? $post['date']->format('c') : '' }}</time></a>
     </div>
 
     <div class="pure-u-5-6">

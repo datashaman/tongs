@@ -4,7 +4,7 @@
 <section>
   <article class="pure-g">
     <div class="pure-u-1-6">
-      <a href="{{ $path }}"><time>{{ @$date }}</time></a>
+        <a href="{{ $path }}"><time>{{ @$date ? $date->format('c') : '' }}</time></a>
     </div>
 
     <div class="pure-u-5-6">

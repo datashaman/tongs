@@ -279,6 +279,7 @@ class Tongs
         $finder = new Finder();
         $finder
             ->files()
+            ->notPath($this->ignore())
             ->followLinks()
             ->in($dir);
 
@@ -298,7 +299,8 @@ class Tongs
                 $path = preg_replace("#^{$dir}/#", '', $path);
 
                 if ($this->frontmatter()) {
-                    $frontMatter = new FrontMatter();
+                    $processor = new YamlProcessor();
+                    $frontMatter = new FrontMatter($processor);
                     $document = $frontMatter->parse($contents);
 
                     $data = array_merge(

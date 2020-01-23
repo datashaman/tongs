@@ -8,6 +8,7 @@ use Datashaman\Tongs\Tests\TestCase;
 use Datashaman\Tongs\Plugins\Plugin;
 use Datashaman\Tongs\Tongs;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 
 class NoopPlugin extends Plugin
@@ -218,6 +219,23 @@ class TongsTest extends TestCase
         $tongs->frontmatter(false);
         $files = $tongs->read();
         $this->assertFalse(Arr::has($files['index.md'], 'thing'));
+    }
+
+    public function testReadIgnoreFiles()
+    {
+        $tongs = new Tongs($this->directory('basic'));
+        $tongs->ignore('nested');
+        $this->assertEquals(
+            collect([
+                "index.md" => [
+                    "title" => "A Title",
+                    "date" => Carbon::parse('2013-12-02'),
+                    "contents" => "body",
+                    "mode" => "0644",
+                ],
+            ]),
+            $tongs->read()
+        );
     }
 
     protected function directory($path = null)

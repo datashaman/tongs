@@ -7,7 +7,6 @@ namespace Datashaman\Tongs\Plugins;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Parsedown;
-use Webuni\FrontMatter\FrontMatter;
 
 final class MarkdownPlugin extends Plugin
 {
@@ -31,15 +30,9 @@ final class MarkdownPlugin extends Plugin
 
     protected function transform(array $file): array
     {
-        $frontMatter = new FrontMatter();
-        $document = $frontMatter->parse($file['contents']);
-
-        $file['data'] = $document->getData();
-        $contents = $document->getContent();
-
         $parser = $this->getParser();
 
-        $file['contents'] = $parser->text($contents);
+        $file['contents'] = $parser->text($file['contents']);
         $file['path'] = preg_replace('/\.md$/', '.html', $file['path']);
 
         return $file;

@@ -1,6 +1,8 @@
 <?php
 
-namespace Tests;
+declare(strict_types=1);
+
+namespace Datashaman\Tongs\Tests;
 
 use LaravelZero\Framework\Testing\TestCase as BaseTestCase;
 

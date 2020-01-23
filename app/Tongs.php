@@ -7,6 +7,8 @@ namespace Datashaman\Tongs;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Symfony\Component\Finder\Finder;
+use Webuni\FrontMatter\FrontMatter;
 
 class Tongs
 {
@@ -152,14 +154,34 @@ class Tongs
     }
 
     /**
-     * @param array<string> $files
+     * @param null|bool $frontmatter
+     *
+     * @return bool|self
+     */
+    public function frontmatter(bool $frontmatter = null)
+    {
+        if (is_null($frontmatter)) {
+            return $this->frontmatter;
+        }
+
+        $this->frontmatter = $frontmatter;
+
+        return $this;
+    }
+
+    /**
+     * @param array<string>|string $files
      *
      * @return array<string>|self
      */
-    public function ignore(array $files = null)
+    public function ignore($files = null)
     {
         if (is_null($files)) {
             return $this->ignores;
+        }
+
+        if (is_string($files)) {
+            $files = [$files];
         }
 
         $this->ignores = array_merge(
@@ -175,7 +197,9 @@ class Tongs
      */
     public function path(...$paths)
     {
-        array_unshift($paths, $this->directory());
+        if (count($paths) && $paths[0][0] !== '/') {
+            array_unshift($paths, $this->directory());
+        }
 
         return implode(DIRECTORY_SEPARATOR, $paths);
     }
@@ -224,6 +248,11 @@ class Tongs
         }
     }
 
+    public function plugins(): array
+    {
+        return $this->plugins;
+    }
+
     protected function run(Collection $files, array $plugins = null)
     {
         $plugins = $plugins ?? $this->plugins;
@@ -234,23 +263,43 @@ class Tongs
             ->thenReturn();
     }
 
-    protected function read(string $dir = null)
+    public function read(string $dir = null)
     {
         if (is_null($dir)) {
             $dir = $this->source();
         }
 
-        $allFiles = File::allFiles($dir);
+        $finder = new Finder();
+        $finder
+            ->files()
+            ->followLinks()
+            ->in($dir);
 
-        return collect($allFiles)->mapWithKeys(
-            static function ($file) {
+        return collect($finder)->mapWithKeys(
+            function ($file) use ($dir) {
                 $path = $file->getRelativePathname();
 
+                $contents = $file->getContents();
+                $data = [];
+
+                $path = preg_replace("#^{$dir}/#", '', $path);
+
+                if ($this->frontmatter()) {
+                    $frontMatter = new FrontMatter();
+                    $document = $frontMatter->parse($contents);
+
+                    $data = $document->getData();
+                    $contents = trim($document->getContent());
+                }
+
                 return [
-                    $path => [
-                        'contents' => $file->getContents(),
-                        'path' => $path,
-                    ],
+                    $path => array_merge(
+                        $data,
+                        [
+                            'contents' => $contents,
+                            'path' => $path,
+                        ],
+                    ),
                 ];
             }
         );

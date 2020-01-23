@@ -33,9 +33,7 @@ final class CollectionsPlugin extends Plugin
                                     ];
                                 }
 
-                                dump($defn['pattern'], $file['path']);
                                 if (fnmatch($defn['pattern'], $file['path'])) {
-                                    dump("TRUE");
                                     $metadata[$key] = $metadata[$key] ?? [];
                                     array_push($metadata[$key], $file);
                                 }

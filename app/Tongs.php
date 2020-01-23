@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Datashaman\Tongs;
 
+use Exception;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -309,7 +310,12 @@ class Tongs
             $frontMatter = new FrontMatter($processor);
             $document = $frontMatter->parse($contents);
 
-            $ret = $document->getData();
+            $ret = $document->getData() ?? [];
+
+            if (!is_array($ret)) {
+                throw new Exception('Invalid frontmatter');
+            }
+
             $contents = trim($document->getContent());
         }
 

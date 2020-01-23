@@ -8,6 +8,7 @@ use Datashaman\Tongs\Tests\TestCase;
 use Datashaman\Tongs\Plugins\Plugin;
 use Datashaman\Tongs\Tongs;
 use DateTime;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
@@ -250,6 +251,15 @@ class TongsTest extends TestCase
             ],
             $tongs->readFile('index.md')
         );
+    }
+
+    public function testReadInvalidFrontmatter()
+    {
+        $tongs = new Tongs($this->directory('read-invalid-frontmatter'));
+        $tongs->frontmatter(true);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid frontmatter');
+        $file = $tongs->readFile('index.md');
     }
 
     protected function directory($path = null)

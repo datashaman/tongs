@@ -13,18 +13,20 @@
   "source": "src",
   "destination": "build",
   "plugins": {
-    "Datashaman\\Tongs\\Plugins\\DraftsPlugin": true,
-    "Datashaman\\Tongs\\Plugins\\MarkdownPlugin": {
+    "drafts": true,
+    "markdown": {
       "breaksEnabled": true
     },
-    "Datashaman\\Tongs\\Plugins\\SassPlugin": {
+    "sass": {
       "outputStyle": "expanded"
     },
-    "Datashaman\\Tongs\\Plugins\\CollectionsPlugin": {
+    "collections": {
       "posts": "posts/*.html"
     },
-    "Datashaman\\Tongs\\Plugins\\ViewsPlugin": {
-      "paths": ["resources/views"],
+    "views": {
+      "paths": [
+        "resources/views"
+      ],
       "compiled": "storage/framework/views"
     }
   }

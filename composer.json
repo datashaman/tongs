@@ -22,6 +22,7 @@
   "require": {
     "php": "^7.2",
     "erusev/parsedown": "^1.7",
+    "illuminate/log": "^6.0",
     "illuminate/pipeline": "^6.12",
     "illuminate/view": "^6.12",
     "laravel-zero/framework": "^6.0",
@@ -50,13 +51,21 @@
     "optimize-autoloader": true
   },
   "scripts": {
-    "post-create-project-cmd": [
-      "@php application app:rename"
-    ]
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "bin": [
     "tongs"
-  ]
+  ],
+  "extra": {
+    "tongs": {
+      "plugins": {
+        "collections": "Datashaman\\Tongs\\Plugins\\CollectionsPlugin",
+        "drafts": "Datashaman\\Tongs\\Plugins\\DraftsPlugin",
+        "markdown": "Datashaman\\Tongs\\Plugins\\MarkdownPlugin",
+        "sass": "Datashaman\\Tongs\\Plugins\\SassPlugin",
+        "views": "Datashaman\\Tongs\\Plugins\\ViewsPlugin"
+      }
+    }
+  }
 }

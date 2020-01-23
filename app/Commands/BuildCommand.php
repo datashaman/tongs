@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Datashaman\Tongs\Commands;
 
+use Datashaman\Tongs\PackageManifest;
 use Datashaman\Tongs\Tongs;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -26,7 +28,7 @@ final class BuildCommand extends Command
     public function handle()
     {
         $config = $this->getConfig();
-
+        $plugins = $this->plugins();
         $tongs = new Tongs(getcwd());
 
         if (Arr::has($config, 'source')) {
@@ -55,7 +57,9 @@ final class BuildCommand extends Command
 
         collect(Arr::get($config, 'plugins', []))
             ->each(
-                static function ($options, $class) use ($tongs) {
+                function ($options, $key) use ($plugins, $tongs) {
+                    $class = Arr::get($plugins, $key, $key);
+
                     $plugin = $options === true
                         ? new $class($tongs)
                         : new $class($tongs, $options);
@@ -74,6 +78,17 @@ final class BuildCommand extends Command
                 $this->info('Successfully built ' . $files->count() . ' files to ' . $tongs->destination());
             }
         );
+    }
+
+    protected function plugins(): array
+    {
+        $manifest = new PackageManifest(
+            new Filesystem, $this->app->basePath(), $this->app->getCachedPackagesPath()
+        );
+
+        $manifest->build();
+
+        return $manifest->plugins();
     }
 
     protected function getConfig(): array

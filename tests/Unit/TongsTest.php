@@ -287,6 +287,21 @@ class TongsTest extends TestCase
         $this->assertDirs($this->fixture('write-dir/expected'), $this->fixture('write-dir/out'));
     }
 
+    public function testWriteMode()
+    {
+        $tongs = new Tongs($this->fixture('write-mode'));
+        $files = [
+            'bin' => [
+                'contents' => 'echo test',
+                'mode' => '0777',
+            ],
+        ];
+        $tongs->write($files);
+        $fileInfo = new SplFileInfo($this->fixture('write-mode/build/bin'));
+        $mode = substr($fileInfo->getPerms(), -4);
+        $this->assertEquals('0777', $mode);
+    }
+
     protected function assertDirs(string $expected, string $actual)
     {
         $expected = (new Finder())

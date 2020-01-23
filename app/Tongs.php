@@ -279,7 +279,13 @@ class Tongs
             function ($file) use ($dir) {
                 $path = $file->getRelativePathname();
 
-                $data = [];
+                $data = [
+                    'mode' => substr(
+                        base_convert((string) $file->getPerms(), 10, 8),
+                        -4
+                    ),
+                ];
+
                 $contents = $file->getContents();
 
                 $path = preg_replace("#^{$dir}/#", '', $path);
@@ -288,7 +294,11 @@ class Tongs
                     $frontMatter = new FrontMatter();
                     $document = $frontMatter->parse($contents);
 
-                    $data = $document->getData();
+                    $data = array_merge(
+                        $data,
+                        $document->getData(),
+                    );
+
                     $contents = trim($document->getContent());
                 }
 

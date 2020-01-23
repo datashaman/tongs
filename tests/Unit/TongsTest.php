@@ -7,6 +7,7 @@ namespace Datashaman\Tests\Unit;
 use Datashaman\Tongs\Tests\TestCase;
 use Datashaman\Tongs\Plugins\Plugin;
 use Datashaman\Tongs\Tongs;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 
 class NoopPlugin extends Plugin
@@ -160,6 +161,7 @@ class TongsTest extends TestCase
                 "index.md" => [
                     "title" => "A Title",
                     "contents" => "body",
+                    "mode" => "0644",
                 ],
             ]),
             $tongs->read()
@@ -174,6 +176,7 @@ class TongsTest extends TestCase
                 "dir/index.md" => [
                     "title" => "A Title",
                     "contents" => "body",
+                    "mode" => "0644",
                 ],
             ]),
             $tongs->read()
@@ -188,10 +191,33 @@ class TongsTest extends TestCase
                 "index.md" => [
                     "title" => "A Title",
                     "contents" => "body",
+                    "mode" => "0644",
                 ],
             ]),
             $tongs->read($this->directory('read-dir/dir'))
         );
+    }
+
+    public function testReadMode()
+    {
+        $tongs = new Tongs($this->directory('read-mode'));
+        $this->assertEquals(
+            collect([
+                "bin" => [
+                    "contents" => "echo test",
+                    "mode" => "0755",
+                ],
+            ]),
+            $tongs->read()
+        );
+    }
+
+    public function testReadFrontmatter()
+    {
+        $tongs = new Tongs($this->directory('read-frontmatter'));
+        $tongs->frontmatter(false);
+        $files = $tongs->read();
+        $this->assertFalse(Arr::has($files['index.md'], 'thing'));
     }
 
     protected function directory($path = null)

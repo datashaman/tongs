@@ -407,6 +407,30 @@ class TongsTest extends TestCase
         $this->assertDirs($this->fixture('basic-images/expected'), $this->fixture('basic-images/build'));
     }
 
+    public function testBuildBasicPlugin()
+    {
+        $tongs = new Tongs($this->fixture('basic-plugin'));
+
+        $plugin = new class($tongs) extends Plugin {
+            public function handle(Collection $files, callable $next): Collection
+            {
+                $files = $files
+                    ->map(
+                        function ($file) {
+                            $file['contents'] = $file['title'];
+
+                            return $file;
+                        }
+                    );
+
+                return $next($files);
+            }
+        };
+
+        $files = $tongs->use($plugin)->build();
+        $this->assertDirs($this->fixture('basic-plugin/expected'), $this->fixture('basic-plugin/build'));
+    }
+
     protected function assertDirs(string $expected, string $actual)
     {
         $expected = (new Finder())

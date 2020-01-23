@@ -400,6 +400,13 @@ class TongsTest extends TestCase
         $this->assertDirs($this->fixture('basic/expected'), $this->fixture('basic/build'));
     }
 
+    public function testBuildBinaryFiles()
+    {
+        $tongs = new Tongs($this->fixture('basic-images'));
+        $files = $tongs->build();
+        $this->assertDirs($this->fixture('basic-images/expected'), $this->fixture('basic-images/build'));
+    }
+
     protected function assertDirs(string $expected, string $actual)
     {
         $expected = (new Finder())

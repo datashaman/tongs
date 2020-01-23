@@ -216,7 +216,7 @@ class Tongs
             }
 
             $files = $this->process();
-            $files = $this->write($files);
+            $files = $this->write($files->all());
 
             if ($done) {
                 $done(null, $files);

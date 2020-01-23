@@ -393,6 +393,13 @@ class TongsTest extends TestCase
         $this->assertEquals('two', $files['two.md']['contents']);
     }
 
+    public function testBuildNoPlugins()
+    {
+        $tongs = new Tongs($this->fixture('basic'));
+        $files = $tongs->build();
+        $this->assertDirs($this->fixture('basic/expected'), $this->fixture('basic/build'));
+    }
+
     protected function assertDirs(string $expected, string $actual)
     {
         $expected = (new Finder())

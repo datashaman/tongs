@@ -10,6 +10,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Env;
 use Illuminate\Support\Facades\File;
 use LaravelZero\Framework\Commands\Command;
 
@@ -73,10 +74,49 @@ final class BuildCommand extends Command
         $this->info('Successfully built ' . $files->count() . ' files to ' . $tongs->destination());
     }
 
+    /**
+     * Normalize a relative or absolute path to a cache file.
+     *
+     * @param  string  $key
+     * @param  string  $default
+     * @return string
+     */
+    protected function normalizeCachePath($key, $default)
+    {
+        if (is_null($env = Env::get($key))) {
+            return $this->bootstrapPath($default);
+        }
+
+        return Str::startsWith($env, '/')
+                ? $env
+                : $this->basePath($env);
+    }
+
+    /**
+     * Get the path to the bootstrap directory.
+     *
+     * @param  string  $path Optionally, a path to append to the bootstrap path
+     * @return string
+     */
+    public function bootstrapPath($path = '')
+    {
+        return getcwd().DIRECTORY_SEPARATOR.'bootstrap'.($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+
+    /**
+     * Get the path to the cached packages.php file.
+     *
+     * @return string
+     */
+    public function getCachedPackagesPath()
+    {
+        return $this->normalizeCachePath('APP_PACKAGES_CACHE', 'cache/packages.php');
+    }
+
     protected function plugins(): array
     {
         $manifest = new PackageManifest(
-            new Filesystem, $this->app->basePath(), $this->app->getCachedPackagesPath()
+            new Filesystem, getcwd(), $this->getCachedPackagesPath()
         );
 
         $manifest->build();

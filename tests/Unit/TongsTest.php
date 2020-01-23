@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
+use Symfony\Component\Finder\Finder;
 
 class NoopPlugin extends Plugin
 {
@@ -29,21 +30,20 @@ class TongsTest extends TestCase
         parent::setUp();
 
         $this->directory = realpath(__DIR__ . '/../fixtures');
-        $this->tongs = new Tongs($this->directory);
     }
 
     public function testDefaultSource()
     {
         $tongs = new Tongs($this->directory);
         $this->assertTrue((bool) $tongs->source());
-        $this->assertEquals($this->directory('src'), $tongs->source());
+        $this->assertEquals($this->fixture('src'), $tongs->source());
     }
 
     public function testDefaultDestination()
     {
         $tongs = new Tongs($this->directory);
         $this->assertTrue((bool) $tongs->destination());
-        $this->assertEquals($this->directory('build'), $tongs->destination());
+        $this->assertEquals($this->fixture('build'), $tongs->destination());
     }
 
     public function testDefaultClean()
@@ -95,7 +95,7 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->directory);
         $tongs->source('dir');
-        $this->assertEquals($this->directory('dir'), $tongs->source());
+        $this->assertEquals($this->fixture('dir'), $tongs->source());
     }
 
     public function testSourceSetAbsolute()
@@ -109,7 +109,7 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->directory);
         $tongs->destination('dir');
-        $this->assertEquals($this->directory('dir'), $tongs->destination());
+        $this->assertEquals($this->fixture('dir'), $tongs->destination());
     }
 
     public function testDestinationSetAbsolute()
@@ -153,12 +153,12 @@ class TongsTest extends TestCase
     public function testPath()
     {
         $tongs = new Tongs($this->directory);
-        $this->assertEquals($this->directory('dir'), $tongs->path('dir'));
+        $this->assertEquals($this->fixture('dir'), $tongs->path('dir'));
     }
 
     public function testReadSourceDirectory()
     {
-        $tongs = new Tongs($this->directory('read'));
+        $tongs = new Tongs($this->fixture('read'));
         $this->assertEquals(
             collect([
                 "index.md" => [
@@ -173,7 +173,7 @@ class TongsTest extends TestCase
 
     public function testReadSymbolicLink()
     {
-        $tongs = new Tongs($this->directory('read-symbolic-link'));
+        $tongs = new Tongs($this->fixture('read-symbolic-link'));
         $this->assertEquals(
             collect([
                 "dir/index.md" => [
@@ -188,7 +188,7 @@ class TongsTest extends TestCase
 
     public function testReadProvidedDirectory()
     {
-        $tongs = new Tongs($this->directory('read-dir'));
+        $tongs = new Tongs($this->fixture('read-dir'));
         $this->assertEquals(
             collect([
                 "index.md" => [
@@ -197,13 +197,13 @@ class TongsTest extends TestCase
                     "mode" => "0644",
                 ],
             ]),
-            $tongs->read($this->directory('read-dir/dir'))
+            $tongs->read($this->fixture('read-dir/dir'))
         );
     }
 
     public function testReadMode()
     {
-        $tongs = new Tongs($this->directory('read-mode'));
+        $tongs = new Tongs($this->fixture('read-mode'));
         $this->assertEquals(
             collect([
                 "bin" => [
@@ -217,7 +217,7 @@ class TongsTest extends TestCase
 
     public function testReadFrontmatter()
     {
-        $tongs = new Tongs($this->directory('read-frontmatter'));
+        $tongs = new Tongs($this->fixture('read-frontmatter'));
         $tongs->frontmatter(false);
         $files = $tongs->read();
         $this->assertFalse(Arr::has($files['index.md'], 'thing'));
@@ -225,7 +225,7 @@ class TongsTest extends TestCase
 
     public function testReadIgnoreFiles()
     {
-        $tongs = new Tongs($this->directory('basic'));
+        $tongs = new Tongs($this->fixture('basic'));
         $tongs->ignore('nested');
         $this->assertEquals(
             collect([
@@ -242,7 +242,7 @@ class TongsTest extends TestCase
 
     public function testReadFileRelative()
     {
-        $tongs = new Tongs($this->directory('read'));
+        $tongs = new Tongs($this->fixture('read'));
         $this->assertEquals(
             [
                 "title" => "A Title",
@@ -255,14 +255,65 @@ class TongsTest extends TestCase
 
     public function testReadInvalidFrontmatter()
     {
-        $tongs = new Tongs($this->directory('read-invalid-frontmatter'));
+        $tongs = new Tongs($this->fixture('read-invalid-frontmatter'));
         $tongs->frontmatter(true);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid frontmatter');
         $file = $tongs->readFile('index.md');
     }
 
-    protected function directory($path = null)
+    public function testWriteDirectory()
+    {
+        $tongs = new Tongs($this->fixture('write'));
+        $files = [
+            'index.md' => [
+                'contents' => 'body',
+            ],
+        ];
+        $tongs->write($files);
+        $this->assertDirs($this->fixture('write/expected'), $this->fixture('write/build'));
+    }
+
+    protected function assertDirs(string $expected, string $actual)
+    {
+        $expected = (new Finder())
+            ->files()
+            ->followLinks()
+            ->in($expected);
+
+        $actual = (new Finder())
+            ->files()
+            ->followLinks()
+            ->in($actual);
+
+        $expected = collect($expected)
+            ->mapWithKeys(
+                function ($file) {
+                    return [
+                        $file->getRelativePathname() => [
+                            'contents' => trim($file->getContents()),
+                            'mode' => $file->getPerms(),
+                        ],
+                    ];
+                }
+            );
+
+        $actual = collect($actual)
+            ->mapWithKeys(
+                function ($file) {
+                    return [
+                        $file->getRelativePathname() => [
+                            'contents' => trim($file->getContents()),
+                            'mode' => $file->getPerms(),
+                        ],
+                    ];
+                }
+            );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    protected function fixture($path = null)
     {
         return "{$this->directory}/{$path}";
     }

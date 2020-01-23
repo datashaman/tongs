@@ -6,6 +6,7 @@ namespace Datashaman\Tongs;
 
 use Exception;
 use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use SplFileInfo;
@@ -326,28 +327,42 @@ class Tongs
         return $ret;
     }
 
-    protected function write(Collection $files, string $dir = null): Collection
+    public function write(array $files, string $dir = null)
     {
-        if (is_null($dir)) {
-            $dir = $this->destination();
-        }
+        $dir = $dir ?: $this->destination();
 
-        return $files
-            ->map(
-                function ($file) use ($dir) {
-                    $fullPath = $dir . DIRECTORY_SEPARATOR . $file['path'];
+        collect($files)
+            ->each(
+                function ($file, $key) use ($dir) {
+                    $pathname = (new SplFileInfo("{$dir}/{$key}"))->getPathname();
 
-                    File::makeDirectory(
-                        File::dirname($fullPath),
-                        0755,
-                        true,
-                        true
-                    );
-
-                    File::put($fullPath, $file['contents']);
-
-                    return $file;
+                    return $this->writeFile($pathname, $file);
                 }
             );
+    }
+
+    public function writeFile(string $file, array $data)
+    {
+        $dest = $this->destination();
+
+        $filesystem = resolve(Filesystem::class);
+        if (!($filesystem->isAbsolutePath($file))) {
+            $file = "{$dest}/{$file}";
+        }
+
+        File::makeDirectory(
+            File::dirname($file),
+            0755,
+            true,
+            true
+        );
+
+        File::put($file, $data['contents']);
+
+        if (Arr::has($data, 'mode')) {
+            File::chmod($file, octdec($data['mode']));
+        }
+
+        return $file;
     }
 }

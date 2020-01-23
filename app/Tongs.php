@@ -7,6 +7,8 @@ namespace Datashaman\Tongs;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use SplFileInfo;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Webuni\FrontMatter\FrontMatter;
 
@@ -262,7 +264,7 @@ class Tongs
 
     protected function run(Collection $files, array $plugins = null)
     {
-        $plugins = $plugins ?? $this->plugins;
+        $plugins = $plugins ?? $this->plugins();
 
         return (new Pipeline())
             ->send($files)
@@ -272,9 +274,7 @@ class Tongs
 
     public function read(string $dir = null)
     {
-        if (is_null($dir)) {
-            $dir = $this->source();
-        }
+        $dir = $dir ?: $this->source();
 
         $finder = new Finder();
         $finder
@@ -284,41 +284,40 @@ class Tongs
             ->in($dir);
 
         return collect($finder)->mapWithKeys(
-            function ($file) use ($dir) {
-                $path = $file->getRelativePathname();
-
-                $data = [
-                    'mode' => substr(
-                        base_convert((string) $file->getPerms(), 10, 8),
-                        -4
-                    ),
-                ];
-
-                $contents = $file->getContents();
-
-                $path = preg_replace("#^{$dir}/#", '', $path);
-
-                if ($this->frontmatter()) {
-                    $processor = new YamlProcessor();
-                    $frontMatter = new FrontMatter($processor);
-                    $document = $frontMatter->parse($contents);
-
-                    $data = array_merge(
-                        $data,
-                        $document->getData(),
-                    );
-
-                    $contents = trim($document->getContent());
-                }
-
-                $data['contents'] = $contents;
-
+            function ($file) {
                 return [
-                    $path => $data,
+                    $file->getRelativePathname() => $this->readFile($file->getPathname()),
                 ];
             }
         );
+    }
 
+    public function readFile(string $file): array
+    {
+        $src = $this->source();
+        $ret = [];
+
+        $filesystem = resolve(Filesystem::class);
+        if (!($filesystem->isAbsolutePath($file))) {
+            $file = "{$src}/{$file}";
+        }
+
+        $contents = File::get($file);
+
+        if ($this->frontmatter()) {
+            $processor = new YamlProcessor();
+            $frontMatter = new FrontMatter($processor);
+            $document = $frontMatter->parse($contents);
+
+            $ret = $document->getData();
+            $contents = trim($document->getContent());
+        }
+
+        $ret['contents'] = $contents;
+        $fileInfo = new SplFileInfo($file);
+        $ret['mode'] = substr(base_convert((string) $fileInfo->getPerms(), 10, 8), -4);
+
+        return $ret;
     }
 
     protected function write(Collection $files, string $dir = null): Collection

@@ -7,6 +7,7 @@ namespace Datashaman\Tests\Unit;
 use Datashaman\Tongs\Tests\TestCase;
 use Datashaman\Tongs\Plugins\Plugin;
 use Datashaman\Tongs\Tongs;
+use DateTime;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
@@ -229,12 +230,25 @@ class TongsTest extends TestCase
             collect([
                 "index.md" => [
                     "title" => "A Title",
-                    "date" => Carbon::parse('2013-12-02'),
+                    "date" => new DateTime('2013-12-02'),
                     "contents" => "body",
                     "mode" => "0644",
                 ],
             ]),
             $tongs->read()
+        );
+    }
+
+    public function testReadFileRelative()
+    {
+        $tongs = new Tongs($this->directory('read'));
+        $this->assertEquals(
+            [
+                "title" => "A Title",
+                "contents" => "body",
+                "mode" => "0644",
+            ],
+            $tongs->readFile('index.md')
         );
     }
 

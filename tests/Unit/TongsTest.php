@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
+use SplFileInfo;
 use Symfony\Component\Finder\Finder;
 
 class NoopPlugin extends Plugin
@@ -298,7 +299,7 @@ class TongsTest extends TestCase
         ];
         $tongs->write($files);
         $fileInfo = new SplFileInfo($this->fixture('write-mode/build/bin'));
-        $mode = substr($fileInfo->getPerms(), -4);
+        $mode = substr(decoct($fileInfo->getPerms()), -4);
         $this->assertEquals('0777', $mode);
     }
 

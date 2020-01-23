@@ -85,7 +85,7 @@ class Tongs
     public function directory(string $directory = null)
     {
         if (is_null($directory)) {
-            return realpath($this->directory);
+            return $this->directory;
         }
 
         $this->directory = $directory;

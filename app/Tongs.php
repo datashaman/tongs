@@ -232,6 +232,13 @@ class Tongs
     {
         try {
             $files = $this->read();
+            $files = $files->map(
+                function ($file, $path) {
+                    $file['path'] = $path;
+
+                    return $file;
+                }
+            );
             $files = $this->run($files);
 
             if ($done) {

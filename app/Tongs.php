@@ -243,7 +243,7 @@ class Tongs
                     return $file;
                 }
             );
-            $files = $this->run($files);
+            $files = $this->run($files->all());
 
             if ($done) {
                 $done(null, $files);
@@ -264,12 +264,12 @@ class Tongs
         return $this->plugins;
     }
 
-    protected function run(Collection $files, array $plugins = null)
+    public function run(array $files, array $plugins = null)
     {
-        $plugins = $plugins ?? $this->plugins();
+        $plugins = $plugins ?: $this->plugins();
 
         return (new Pipeline())
-            ->send($files)
+            ->send(collect($files))
             ->through($plugins)
             ->thenReturn();
     }

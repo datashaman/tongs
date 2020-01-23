@@ -11,7 +11,9 @@ use DateTime;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Mockery;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
 
@@ -322,6 +324,33 @@ class TongsTest extends TestCase
             trim(file_get_contents($this->fixture('write-file/expected/index.md'))),
             trim(file_get_contents($this->fixture('write-file/build/index.md')))
         );
+    }
+
+    public function testRunProvidedPlugin()
+    {
+        $tongs = new Tongs($this->fixture());
+
+        $plugin = new class($tongs) extends Plugin {
+            public function handle(Collection $files, callable $next): Collection
+            {
+                assert($files['one'] == 'one');
+                $files['two'] = 'two';
+
+                return $next($files);
+            }
+        };
+
+        $files = $tongs->run(
+            [
+                'one' => 'one',
+            ],
+            [
+                $plugin,
+            ]
+        );
+
+        $this->assertEquals('one', $files['one']);
+        $this->assertEquals('two', $files['two']);
     }
 
     protected function assertDirs(string $expected, string $actual)

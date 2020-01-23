@@ -1,4 +1,4 @@
-/build/
+/example/build/
 /node_modules/
 /.phpunit.result.cache
 /tests/fixtures/build/

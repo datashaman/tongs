@@ -303,6 +303,27 @@ class TongsTest extends TestCase
         $this->assertEquals('0777', $mode);
     }
 
+    public function testWriteFile()
+    {
+        $tongs = new Tongs($this->fixture('write-file'));
+        $file = 'index.md';
+        $data = [
+            'contents' => 'body',
+        ];
+
+        $tongs->writeFile($file, $data);
+
+        $this->assertDirs(
+            $this->fixture('write-file/expected'),
+            $this->fixture('write-file/build')
+        );
+
+        $this->assertEquals(
+            trim(file_get_contents($this->fixture('write-file/expected/index.md'))),
+            trim(file_get_contents($this->fixture('write-file/build/index.md')))
+        );
+    }
+
     protected function assertDirs(string $expected, string $actual)
     {
         $expected = (new Finder())

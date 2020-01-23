@@ -1,13 +1,12 @@
 {
   "metadata": {
     "author": {
-      "link": "https://datashaman.com/",
-      "name": "Marlin Forbes",
-      "nickname": "datashaman"
+      "link": "https://bobloblaw.example.com/",
+      "name": "Bob Loblaw"
     },
     "site": {
-      "link": "https://datashaman-metalsmith.now.sh/",
-      "title": "datashaman"
+      "link": "https://bobloblawslawblog.example.com/",
+      "title": "Bob Loblaw's Law Blog"
     }
   },
   "source": "src",

@@ -12,6 +12,8 @@
   },
   "source": "src",
   "destination": "build",
+  "clean": true,
+  "frontmatter": true,
   "plugins": {
     "drafts": true,
     "markdown": {

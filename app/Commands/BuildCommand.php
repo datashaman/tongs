@@ -68,16 +68,9 @@ final class BuildCommand extends Command
                 }
             );
 
-        $tongs->build(
-            function ($err, $files) use ($tongs) {
-                if ($err) {
-                    $this->error($err->getMessage());
-                    exit(-1);
-                }
+        $files = $tongs->build();
 
-                $this->info('Successfully built ' . $files->count() . ' files to ' . $tongs->destination());
-            }
-        );
+        $this->info('Successfully built ' . $files->count() . ' files to ' . $tongs->destination());
     }
 
     protected function plugins(): array

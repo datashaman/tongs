@@ -327,12 +327,12 @@ class Tongs
         return $ret;
     }
 
-    public function write(array $files, string $dir = null)
+    public function write(array $files, string $dir = null): Collection
     {
         $dir = $dir ?: $this->destination();
 
-        collect($files)
-            ->each(
+        return collect($files)
+            ->map(
                 function ($file, $key) use ($dir) {
                     $pathname = (new SplFileInfo("{$dir}/{$key}"))->getPathname();
 

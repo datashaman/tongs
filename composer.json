@@ -63,6 +63,7 @@
         "collections": "Datashaman\\Tongs\\Plugins\\CollectionsPlugin",
         "drafts": "Datashaman\\Tongs\\Plugins\\DraftsPlugin",
         "markdown": "Datashaman\\Tongs\\Plugins\\MarkdownPlugin",
+        "permalinks": "Datashaman\\Tongs\\Plugins\\PermalinksPlugin",
         "sass": "Datashaman\\Tongs\\Plugins\\SassPlugin",
         "views": "Datashaman\\Tongs\\Plugins\\ViewsPlugin"
       }

@@ -24,6 +24,18 @@
     "collections": {
       "posts": "posts/*.html"
     },
+    "permalinks": {
+      "pattern": ":name",
+      "date": "Y/m/d",
+      "linksets": [
+        {
+          "match": {
+            "collection": "posts"
+          },
+          "pattern": "posts/:date/:title"
+        }
+      ]
+    },
     "views": {
       "paths": [
         "resources/views"

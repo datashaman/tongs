@@ -29,11 +29,11 @@ final class CollectionsPlugin extends Plugin
                             static function ($defn, $key) use ($file, &$metadata): void {
                                 if (is_string($defn)) {
                                     $defn = [
-                                        'match' => $defn,
+                                        'pattern' => $defn,
                                     ];
                                 }
 
-                                if (fnmatch($defn['match'], $file['path'])) {
+                                if (fnmatch($defn['pattern'], $file['path'])) {
                                     $metadata[$key] = $metadata[$key] ?? [];
                                     array_push($metadata[$key], $file);
                                 }

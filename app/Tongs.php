@@ -7,9 +7,8 @@ namespace Datashaman\Tongs;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Fluent;
 
-class Tongs extends Fluent
+class Tongs
 {
     /**
      * @var array<Plugin>

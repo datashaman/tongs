@@ -23,6 +23,9 @@
     "Datashaman\\Tongs\\Plugins\\CollectionsPlugin": {
       "posts": "posts/*.html"
     },
-    "Datashaman\\Tongs\\Plugins\\ViewsPlugin": true
+    "Datashaman\\Tongs\\Plugins\\ViewsPlugin": {
+      "paths": ["resources/views"],
+      "compiled": "storage/framework/views"
+    }
   }
 }

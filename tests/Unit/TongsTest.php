@@ -353,6 +353,46 @@ class TongsTest extends TestCase
         $this->assertEquals('two', $files['two']);
     }
 
+    public function testProcessNoPlugins()
+    {
+        $tongs = new Tongs($this->fixture('basic'));
+        $files = $tongs->process();
+        $this->assertIsArray($files['index.md']);
+        $this->assertEquals('A Title', $files['index.md']['title']);
+        $this->assertIsArray($files['nested/index.md']);
+    }
+
+    public function testProcessBasicPlugin()
+    {
+        $tongs = new Tongs($this->fixture('basic-plugin'));
+
+        $plugin = new class($tongs) extends Plugin {
+            public function handle(Collection $files, callable $next): Collection
+            {
+                $files = $files
+                    ->map(
+                        function ($file) {
+                            $file['contents'] = $file['title'];
+
+                            return $file;
+                        }
+                    );
+
+                return $next($files);
+            }
+        };
+
+        $files = $tongs->use($plugin)->process();
+
+        $this->assertCount(2, $files);
+        $this->assertIsArray($files['one.md']);
+        $this->assertEquals('one', $files['one.md']['title']);
+        $this->assertEquals('one', $files['one.md']['contents']);
+        $this->assertIsArray($files['two.md']);
+        $this->assertEquals('two', $files['two.md']['title']);
+        $this->assertEquals('two', $files['two.md']['contents']);
+    }
+
     protected function assertDirs(string $expected, string $actual)
     {
         $expected = (new Finder())

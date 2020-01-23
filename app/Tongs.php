@@ -279,8 +279,8 @@ class Tongs
             function ($file) use ($dir) {
                 $path = $file->getRelativePathname();
 
-                $contents = $file->getContents();
                 $data = [];
+                $contents = $file->getContents();
 
                 $path = preg_replace("#^{$dir}/#", '', $path);
 
@@ -292,14 +292,10 @@ class Tongs
                     $contents = trim($document->getContent());
                 }
 
+                $data['contents'] = $contents;
+
                 return [
-                    $path => array_merge(
-                        $data,
-                        [
-                            'contents' => $contents,
-                            'path' => $path,
-                        ],
-                    ),
+                    $path => $data,
                 ];
             }
         );

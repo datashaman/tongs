@@ -25,6 +25,7 @@
     "illuminate/pipeline": "^6.12",
     "illuminate/view": "^6.12",
     "laravel-zero/framework": "^6.0",
+    "symfony/finder": "^4.3.4",
     "symfony/process": "^4.3",
     "webuni/front-matter": "^1.1"
   },

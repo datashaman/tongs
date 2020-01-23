@@ -154,14 +154,12 @@ class TongsTest extends TestCase
 
     public function testReadSourceDirectory()
     {
-        $tongs = new Tongs($this->directory);
-        $tongs->source('read/src');
+        $tongs = new Tongs($this->directory('read'));
         $this->assertEquals(
             collect([
                 "index.md" => [
                     "title" => "A Title",
                     "contents" => "body",
-                    "path" => "index.md",
                 ],
             ]),
             $tongs->read()
@@ -170,17 +168,29 @@ class TongsTest extends TestCase
 
     public function testReadSymbolicLink()
     {
-        $tongs = new Tongs($this->directory);
-        $tongs->source('read-symbolic-link/src');
+        $tongs = new Tongs($this->directory('read-symbolic-link'));
         $this->assertEquals(
             collect([
                 "dir/index.md" => [
                     "title" => "A Title",
                     "contents" => "body",
-                    "path" => "dir/index.md",
                 ],
             ]),
             $tongs->read()
+        );
+    }
+
+    public function testReadProvidedDirectory()
+    {
+        $tongs = new Tongs($this->directory('read-dir'));
+        $this->assertEquals(
+            collect([
+                "index.md" => [
+                    "title" => "A Title",
+                    "contents" => "body",
+                ],
+            ]),
+            $tongs->read($this->directory('read-dir/dir'))
         );
     }
 

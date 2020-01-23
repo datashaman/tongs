@@ -33,7 +33,9 @@ final class CollectionsPlugin extends Plugin
                                     ];
                                 }
 
+                                dump($defn['pattern'], $file['path']);
                                 if (fnmatch($defn['pattern'], $file['path'])) {
+                                    dump("TRUE");
                                     $metadata[$key] = $metadata[$key] ?? [];
                                     array_push($metadata[$key], $file);
                                 }
@@ -54,7 +56,7 @@ final class CollectionsPlugin extends Plugin
         $keys
             ->each(
                 function ($key) use (&$metadata) {
-                    $metadata['collection'][$key] = $metadata[$key];
+                    $metadata['collections'][$key] = $metadata[$key];
                 }
             );
 

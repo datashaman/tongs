@@ -4,7 +4,7 @@
 <section>
   <article class="pure-g">
     <div class="pure-u-1-6">
-      <a href="{{ $path }}"><time>{{ @$data['date'] }}</time></a>
+      <a href="{{ $path }}"><time>{{ @$date }}</time></a>
     </div>
 
     <div class="pure-u-5-6">
@@ -13,9 +13,9 @@
           {!! $contents !!}
         </div>
       @endif
-      @if(@$data['photos'])
+      @if(@$photos)
         @include('partials.gallery', [
-            'photos' => $data['photos'],
+            'photos' => $photos,
             'height' => 300,
         ])
       @endif

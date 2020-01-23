@@ -13,7 +13,7 @@ final class DraftsPlugin extends Plugin
     {
         $files = $files->reject(
             static function ($file) {
-                return Arr::get($file, 'data.draft');
+                return Arr::get($file, 'draft');
             }
         );
 

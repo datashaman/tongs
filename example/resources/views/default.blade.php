@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@if(@$data['name']){{ $data['name'] }} - @endif{{ $site['title'] }}</title>
+    <title>@if(@$name){{ $name }} - @endif{{ $site['title'] }}</title>
     <link rel="stylesheet" type="text/css" href="/styles/bundle.css">
   </head>
-  <body class="view-{{ $data['view'] }}">
+  <body class="view-{{ $view }}">
     <main class="container">
       <div class="pure-g">
         <div class="pure-u-1-6"></div>
@@ -17,7 +17,7 @@
             </a>
           </h2>
 
-          @if(@$data['name'])<h1>{{ $data['name'] }}</h1>@endif
+          @if(@$name)<h1>{{ $name }}</h1>@endif
         </div>
       </div>
 

@@ -1,5 +1,8 @@
 {
     "name": "tongs/example",
     "type": "project",
-    "require": {}
+    "require": {
+        "datashaman/tongs-permalinks": "dev-master",
+        "datashaman/tongs": "^0.1.1"
+    }
 }

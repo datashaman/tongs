@@ -341,26 +341,26 @@ class Tongs
             );
     }
 
-    public function writeFile(string $file, array $data)
+    public function writeFile(string $path, array $file)
     {
         $dest = $this->destination();
 
         $filesystem = resolve(Filesystem::class);
-        if (!($filesystem->isAbsolutePath($file))) {
-            $file = "{$dest}/{$file}";
+        if (!($filesystem->isAbsolutePath($path))) {
+            $path = "{$dest}/{$path}";
         }
 
         File::makeDirectory(
-            File::dirname($file),
+            File::dirname($path),
             0755,
             true,
             true
         );
 
-        File::put($file, $data['contents']);
+        File::put($path, $file['contents']);
 
-        if (Arr::has($data, 'mode')) {
-            File::chmod($file, octdec($data['mode']));
+        if (Arr::has($file, 'mode')) {
+            File::chmod($path, octdec($file['mode']));
         }
 
         return $file;

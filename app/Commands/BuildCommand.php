@@ -98,8 +98,11 @@ final class BuildCommand extends Command
 
     protected function plugins(): Collection
     {
+        $basePath = getcwd();
+        $packagesPath = $basePath . '/.cache/packages.php';
+
         $manifest = new PackageManifest(
-            new Filesystem(), base_path(), base_path('bootstrap/cache/packages.php')
+            new Filesystem(), $basePath, $packagesPath
         );
 
         $manifest->build();

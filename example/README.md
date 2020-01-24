@@ -2,11 +2,18 @@
 
 ## example
 
-Install, build and serve:
+Install node-sass globally:
 
-    composer install
-    npm install
+    sudo -H npm install -g node-sass
 
-    vendor/bin/tongs
+Install tongs globally:
+
+    composer global require datashaman/tongs
+
+Generate the build folder:
+
+    tongs
+
+Serve the build folder:
 
     php artisan serve -S localhost:8080 -t build

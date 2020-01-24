@@ -38,9 +38,9 @@
     },
     "views": {
       "paths": [
-        "resources/views"
+        "views"
       ],
-      "compiled": "storage/framework/views"
+      "compiled": ".cache"
     }
   }
 }

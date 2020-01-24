@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Datashaman\Tongs\Providers;
 
+use Datashaman\Tongs\PackageManifest;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
@@ -15,7 +16,10 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        $this->app->bind(
+            \Illuminate\Foundation\PackageManifest::class,
+            PackageManifest::class
+        );
     }
 
     /**

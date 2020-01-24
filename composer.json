@@ -21,6 +21,7 @@
   ],
   "require": {
     "php": "^7.2",
+    "datashaman/tongs-permalinks": "dev-master",
     "erusev/parsedown": "^1.7",
     "illuminate/log": "^6.0",
     "illuminate/pipeline": "^6.12",

@@ -13,6 +13,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Env;
 use Illuminate\Support\Facades\File;
 use LaravelZero\Framework\Commands\Command;
+use LaravelZero\Framework\Contracts\Providers\ComposerContract;
+use Symfony\Component\Process\Process;
 
 final class BuildCommand extends Command
 {
@@ -28,7 +30,7 @@ final class BuildCommand extends Command
 
     public function handle()
     {
-        $config = $this->getConfig();
+        $config = $this->config();
         $plugins = $this->plugins();
         $tongs = new Tongs(getcwd());
 
@@ -59,7 +61,12 @@ final class BuildCommand extends Command
         collect(Arr::get($config, 'plugins', []))
             ->each(
                 function ($options, $key) use ($plugins, $tongs) {
-                    $class = Arr::get($plugins, $key, $key);
+                    $class = Arr::get($plugins, $key);
+
+                    if (!$class) {
+                        $this->error('Plugin not found: ' . $key);
+                        exit(-1);
+                    }
 
                     $plugin = $options === true
                         ? new $class($tongs)
@@ -74,57 +81,7 @@ final class BuildCommand extends Command
         $this->info('Successfully built ' . $files->count() . ' files to ' . $tongs->destination());
     }
 
-    /**
-     * Normalize a relative or absolute path to a cache file.
-     *
-     * @param  string  $key
-     * @param  string  $default
-     * @return string
-     */
-    protected function normalizeCachePath($key, $default)
-    {
-        if (is_null($env = Env::get($key))) {
-            return $this->bootstrapPath($default);
-        }
-
-        return Str::startsWith($env, '/')
-                ? $env
-                : $this->basePath($env);
-    }
-
-    /**
-     * Get the path to the bootstrap directory.
-     *
-     * @param  string  $path Optionally, a path to append to the bootstrap path
-     * @return string
-     */
-    public function bootstrapPath($path = '')
-    {
-        return getcwd().DIRECTORY_SEPARATOR.'bootstrap'.($path ? DIRECTORY_SEPARATOR.$path : $path);
-    }
-
-    /**
-     * Get the path to the cached packages.php file.
-     *
-     * @return string
-     */
-    public function getCachedPackagesPath()
-    {
-        return $this->normalizeCachePath('APP_PACKAGES_CACHE', 'cache/packages.php');
-    }
-
-    protected function plugins(): array
-    {
-        $manifest = new PackageManifest(
-            new Filesystem, getcwd(), $this->getCachedPackagesPath()
-        );
-
-        $manifest->build();
-
-        return $manifest->plugins();
-    }
-
-    protected function getConfig(): array
+    protected function config(): array
     {
         $configFile = $this->option('config', 'tongs.json');
 
@@ -134,9 +91,19 @@ final class BuildCommand extends Command
         }
 
         $defaults = ['source' => 'src', 'destination' => 'build'];
-
         $config = json_decode(File::get($configFile), true);
+
         return array_merge($defaults, $config);
     }
 
+    protected function plugins(): Collection
+    {
+        $manifest = new PackageManifest(
+            new Filesystem(), base_path(), base_path('bootstrap/cache/packages.php')
+        );
+
+        $manifest->build();
+
+        return collect($manifest->plugins());
+    }
 }

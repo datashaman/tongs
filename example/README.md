@@ -2,10 +2,6 @@
 
 ## example
 
-Install node-sass globally:
-
-    sudo -H npm install -g node-sass
-
 Install tongs globally:
 
     composer global require datashaman/tongs
@@ -18,6 +14,10 @@ Or (better) install all tongs packages into one namespaced bin:
 To add another plugin to the bin:
 
     composer global bin tongs require example/tongs-plugin
+
+Install npm dependencies:
+
+    npm install
 
 Generate the build folder:
 

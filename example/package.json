@@ -1,0 +1,10 @@
+{
+  "name": "tongs/example",
+  "version": "0.1.0",
+  "description": "Tongs example",
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "purecss": "^1.0.1"
+  }
+}

@@ -274,7 +274,7 @@ class TongsTest extends TestCase
             ],
         ];
         $tongs->write($files);
-        $this->assertDirs($this->fixture('write/expected'), $this->fixture('write/build'));
+        $this->assertEqualDirectories($this->fixture('write/expected'), $this->fixture('write/build'));
     }
 
     public function testWriteProvidedDirectory()
@@ -287,7 +287,7 @@ class TongsTest extends TestCase
         ];
         $dir = $this->fixture('write-dir/out');
         $tongs->write($files, $dir);
-        $this->assertDirs($this->fixture('write-dir/expected'), $this->fixture('write-dir/out'));
+        $this->assertEqualDirectories($this->fixture('write-dir/expected'), $this->fixture('write-dir/out'));
     }
 
     public function testWriteMode()
@@ -315,7 +315,7 @@ class TongsTest extends TestCase
 
         $tongs->writeFile($file, $data);
 
-        $this->assertDirs(
+        $this->assertEqualDirectories(
             $this->fixture('write-file/expected'),
             $this->fixture('write-file/build')
         );
@@ -397,14 +397,14 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->fixture('basic'));
         $files = $tongs->build();
-        $this->assertDirs($this->fixture('basic/expected'), $this->fixture('basic/build'));
+        $this->assertEqualDirectories($this->fixture('basic/expected'), $this->fixture('basic/build'));
     }
 
     public function testBuildBinaryFiles()
     {
         $tongs = new Tongs($this->fixture('basic-images'));
         $files = $tongs->build();
-        $this->assertDirs($this->fixture('basic-images/expected'), $this->fixture('basic-images/build'));
+        $this->assertEqualDirectories($this->fixture('basic-images/expected'), $this->fixture('basic-images/build'));
     }
 
     public function testBuildBasicPlugin()
@@ -428,51 +428,7 @@ class TongsTest extends TestCase
         };
 
         $files = $tongs->use($plugin)->build();
-        $this->assertDirs($this->fixture('basic-plugin/expected'), $this->fixture('basic-plugin/build'));
-    }
-
-    protected function assertDirs(string $expected, string $actual)
-    {
-        $expected = (new Finder())
-            ->files()
-            ->followLinks()
-            ->in($expected);
-
-        $actual = (new Finder())
-            ->files()
-            ->followLinks()
-            ->in($actual);
-
-        $expected = collect($expected)
-            ->mapWithKeys(
-                function ($file) {
-                    return [
-                        $file->getRelativePathname() => [
-                            'contents' => trim($file->getContents()),
-                            'mode' => $file->getPerms(),
-                        ],
-                    ];
-                }
-            );
-
-        $actual = collect($actual)
-            ->mapWithKeys(
-                function ($file) {
-                    return [
-                        $file->getRelativePathname() => [
-                            'contents' => trim($file->getContents()),
-                            'mode' => $file->getPerms(),
-                        ],
-                    ];
-                }
-            );
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    protected function fixture($path = null)
-    {
-        return "{$this->directory}/{$path}";
+        $this->assertEqualDirectories($this->fixture('basic-plugin/expected'), $this->fixture('basic-plugin/build'));
     }
 
     protected function withTempDirectory(callable $callable)

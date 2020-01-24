@@ -4,24 +4,24 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4c3a32cad9e5faffb504dba61d754e0",
+    "content-hash": "7ad548547ada7d370d08dedbde0c7e46",
     "packages": [
         {
             "name": "datashaman/tongs-permalinks",
-            "version": "dev-master",
+            "version": "0.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/datashaman/tongs-permalinks.git",
-                "reference": "b73e99f4d2361d27ebe37f0b325921452e7fa1a6"
+                "reference": "0ace5a236d8cf7db3bc76c2cab6b6b73024662ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/datashaman/tongs-permalinks/zipball/b73e99f4d2361d27ebe37f0b325921452e7fa1a6",
-                "reference": "b73e99f4d2361d27ebe37f0b325921452e7fa1a6",
+                "url": "https://api.github.com/repos/datashaman/tongs-permalinks/zipball/0ace5a236d8cf7db3bc76c2cab6b6b73024662ff",
+                "reference": "0ace5a236d8cf7db3bc76c2cab6b6b73024662ff",
                 "shasum": ""
             },
             "require-dev": {
-                "datashaman/tongs": "^0.1.0"
+                "datashaman/tongs": "^0.2"
             },
             "type": "library",
             "extra": {
@@ -47,7 +47,7 @@
                 }
             ],
             "description": "Permalinks plugin for Tongs",
-            "time": "2020-01-23T20:57:45+00:00"
+            "time": "2020-01-24T10:51:34+00:00"
         },
         {
             "name": "doctrine/inflector",
@@ -6194,9 +6194,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "datashaman/tongs-permalinks": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

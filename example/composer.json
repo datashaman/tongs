@@ -1,0 +1,16 @@
+{
+    "name": "datashaman/tongs-example",
+    "description": "Tongs example",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marlin Forbes",
+            "email": "marlinf@datashaman.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "datashaman/tongs": "dev-master"
+    }
+}

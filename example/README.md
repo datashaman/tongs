@@ -2,18 +2,13 @@
 
 ## example
 
-Install tongs globally:
+Install Composer dependencies:
 
-    composer global require datashaman/tongs
+    composer install
 
-Or (better) install all tongs packages into one namespaced bin:
+To require another plugin:
 
-    composer global require bamarni/composer-bin-plugin
-    composer global bin tongs require datashaman/tongs
-
-To add another plugin to the bin:
-
-    composer global bin tongs require example/tongs-plugin
+    composer require example/tongs-plugin
 
 Install npm dependencies:
 
@@ -21,7 +16,7 @@ Install npm dependencies:
 
 Generate the build folder:
 
-    tongs
+    vendor/bin/tongs
 
 Serve the build folder:
 

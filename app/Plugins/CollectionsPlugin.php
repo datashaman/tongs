@@ -24,6 +24,14 @@ final class CollectionsPlugin extends Plugin
         $files
             ->each(
                 function ($file) use (&$metadata) {
+                    collect(Arr::get($file, 'collection'))
+                        ->each(
+                            function ($key) use (&$metadata) {
+                                $metadata[$key] = $metadata[$key] ?? [];
+                                array_push($metadata[$key], $file);
+                            }
+                        );
+
                     collect($this->options)
                         ->each(
                             static function ($defn, $key) use ($file, &$metadata): void {
@@ -33,7 +41,7 @@ final class CollectionsPlugin extends Plugin
                                     ];
                                 }
 
-                                if (fnmatch($defn['pattern'], $file['path'])) {
+                                if (Arr::get($defn, 'pattern') && fnmatch($defn['pattern'], $file['path'])) {
                                     $metadata[$key] = $metadata[$key] ?? [];
                                     array_push($metadata[$key], $file);
                                 }

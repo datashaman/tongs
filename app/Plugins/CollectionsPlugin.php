@@ -21,7 +21,7 @@ final class CollectionsPlugin extends Plugin
 
         $files
             ->each(
-                function ($file) use ($keys, &$metadata) {
+                function ($file, $path) use ($keys, &$metadata) {
                     collect(Arr::get($file, 'collection'))
                         ->each(
                             function ($key) use ($file, $keys, &$metadata) {

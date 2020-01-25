@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Datashaman\Tongs\Plugins;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 final class CollectionsPlugin extends Plugin
@@ -14,21 +15,21 @@ final class CollectionsPlugin extends Plugin
 
         $keys = $this->options->keys();
 
-        $keys
-            ->each(
-                function ($key) use (&$metadata) {
-                    $metadata[$key] = [];
-                }
-            );
+        foreach ($keys as $key) {
+            $metadata[$key] = [];
+        }
 
         $files
             ->each(
-                function ($file) use (&$metadata) {
+                function ($file) use ($keys, &$metadata) {
                     collect(Arr::get($file, 'collection'))
                         ->each(
-                            function ($key) use (&$metadata) {
-                                $metadata[$key] = $metadata[$key] ?? [];
-                                array_push($metadata[$key], $file);
+                            function ($key) use ($file, $keys, &$metadata) {
+                                if (!$keys->contains($key)) {
+                                    $keys->push($key);
+                                    $metadata[$key] = [];
+                                }
+                                $metadata[$key][] = $file;
                             }
                         );
 
@@ -42,29 +43,18 @@ final class CollectionsPlugin extends Plugin
                                 }
 
                                 if (Arr::get($defn, 'pattern') && fnmatch($defn['pattern'], $file['path'])) {
-                                    $metadata[$key] = $metadata[$key] ?? [];
-                                    array_push($metadata[$key], $file);
+                                    $metadata[$key][] = $file;
                                 }
                             }
                         );
                 }
             );
 
-        $keys
-            ->each(
-                function ($key) use (&$metadata) {
-                    $metadata[$key] = $metadata[$key] ?? [];
-                }
-            );
-
         $metadata['collections'] = [];
 
-        $keys
-            ->each(
-                function ($key) use (&$metadata) {
-                    $metadata['collections'][$key] = $metadata[$key];
-                }
-            );
+        foreach ($keys as $key) {
+            $metadata['collections'][$key] = $metadata[$key];
+        }
 
         $this->tongs->metadata($metadata);
 

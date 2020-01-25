@@ -15,22 +15,14 @@ final class SassPlugin extends Plugin
     {
         $files = $files
             ->mapWithKeys(
-                function ($file) {
-                    $extension = File::extension(
-                        $this->tongs->source() .
-                        DIRECTORY_SEPARATOR .
-                        $file['path']
-                    );
+                function ($file, $path) {
+                    $extension = File::extension($path);
+
                     if (in_array($extension, ['sass', 'scss'])) {
-                        $file['contents'] = $this->transform($file);
-                        $file['path'] = preg_replace(
-                            "/\.${extension}$/",
-                            '.css',
-                            $file['path']
-                        );
+                        return $this->transform($file, $path);
                     }
 
-                    return [$file['path'] => $file];
+                    return [$path => $file];
                 }
             );
 
@@ -39,26 +31,36 @@ final class SassPlugin extends Plugin
 
     /**
      * @param array $file
+     * @param string $path
      *
      * @return string
      */
-    protected function transform(array $file): string
+    protected function transform(array $file, string $path): string
     {
-        $cmd = $this->command($file);
+        $cmd = $this->command($file, $path);
         $process = new Process($cmd);
         $process->mustRun();
 
-        return $process->getOutput();
+        $path = preg_replace(
+            "/\.${extension}$/",
+            '.css',
+            $path
+        );
+
+        return [
+            $path => $process->getOutput(),
+        ];
     }
 
     /**
      * @param array $file
+     * @param string $path
      *
      * @return array
      */
-    protected function command(array $file): array
+    protected function command(array $file, string $path): array
     {
-        $fullPath = $this->tongs->source() . DIRECTORY_SEPARATOR . $file['path'];
+        $fullPath = $this->tongs->source() . DIRECTORY_SEPARATOR . $path;
 
         $options = $this->options
             ->map(

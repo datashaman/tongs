@@ -35,14 +35,14 @@ final class CollectionsPlugin extends Plugin
 
                     collect($this->options)
                         ->each(
-                            static function ($defn, $key) use ($file, &$metadata): void {
+                            static function ($defn, $key) use ($file, &$metadata, $path): void {
                                 if (is_string($defn)) {
                                     $defn = [
                                         'pattern' => $defn,
                                     ];
                                 }
 
-                                if (Arr::get($defn, 'pattern') && fnmatch($defn['pattern'], $file['path'])) {
+                                if (Arr::get($defn, 'pattern') && fnmatch($defn['pattern'], $path)) {
                                     $metadata[$key][] = $file;
                                 }
                             }

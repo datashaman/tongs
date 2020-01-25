@@ -14,13 +14,13 @@ final class MarkdownPlugin extends Plugin
     {
         $files = $files
             ->mapWithKeys(
-                function ($file) {
-                    if (File::extension($file['path']) === 'md') {
-                        $file = $this->transform($file);
+                function ($file, $path) {
+                    if (File::extension($path) === 'md') {
+                        return $this->transform($file);
                     }
 
                     return [
-                        $file['path'] => $file,
+                        $path => $file,
                     ];
                 }
             );
@@ -28,12 +28,12 @@ final class MarkdownPlugin extends Plugin
         return $next($files);
     }
 
-    protected function transform(array $file): array
+    protected function transform(array $file, string $path): array
     {
         $parser = $this->getParser();
 
         $file['contents'] = $parser->text($file['contents']);
-        $file['path'] = preg_replace('/\.md$/', '.html', $file['path']);
+        $path = preg_replace('/\.md$/', '.html', $path);
 
         return $file;
     }

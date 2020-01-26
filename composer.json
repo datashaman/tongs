@@ -3,10 +3,13 @@
   "type": "project",
   "description": "Metalsmith-alike for Laravel.",
   "keywords": [
-    "metalsmith",
+    "cli",
     "laravel",
-    "static site generator",
-    "cli"
+    "metalsmith",
+    "ssg",
+    "static-site",
+    "static-site-generator",
+    "tongs"
   ],
   "license": "MIT",
   "authors": [

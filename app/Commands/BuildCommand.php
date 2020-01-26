@@ -98,6 +98,11 @@ final class BuildCommand extends Command
     protected function plugins(): Collection
     {
         $cwd = getcwd();
+
+        if (file_exists("{$cwd}/vendor/autoload.php")) {
+            require_once("{$cwd}/vendor/autoload.php");
+        }
+
         $basePath = File::exists("{$cwd}/vendor/composer/installed.json")
             ? $cwd
             : base_path();
@@ -111,6 +116,12 @@ final class BuildCommand extends Command
 
         $manifest->build();
 
-        return collect($manifest->plugins());
+        $plugins = collect($manifest->plugins());
+
+        if (File::exists("{$cwd}/composer.json")) {
+            $plugins = $plugins->merge(json_decode(File::get("{$cwd}/composer.json"), true));
+        }
+
+        return $plugins;
     }
 }

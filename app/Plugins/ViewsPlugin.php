@@ -52,7 +52,7 @@ final class ViewsPlugin extends Plugin
     {
         $files = $files
             ->map(
-                function ($file) {
+                function (array $file) {
                     $view = Arr::get($file, 'view');
 
                     $locals = array_merge(

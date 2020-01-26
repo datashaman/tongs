@@ -15,11 +15,11 @@ final class SassPlugin extends Plugin
     {
         $files = $files
             ->mapWithKeys(
-                function ($file, $path) {
+                function (array $file, string $path) {
                     $extension = File::extension($path);
 
                     if (in_array($extension, ['sass', 'scss'])) {
-                        return $this->transform($file, $path);
+                        return $this->transform($file, $path, $extension);
                     }
 
                     return [$path => $file];
@@ -32,12 +32,14 @@ final class SassPlugin extends Plugin
     /**
      * @param array $file
      * @param string $path
+     * @param string $extension
      *
-     * @return string
+     * @return array
      */
-    protected function transform(array $file, string $path): string
+    protected function transform(array $file, string $path, string $extension): array
     {
         $cmd = $this->command($file, $path);
+
         $process = new Process($cmd);
         $process->mustRun();
 
@@ -47,8 +49,10 @@ final class SassPlugin extends Plugin
             $path
         );
 
+        $file['contents'] = $process->getOutput();
+
         return [
-            $path => $process->getOutput(),
+            $path => $file,
         ];
     }
 

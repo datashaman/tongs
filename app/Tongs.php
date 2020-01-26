@@ -299,7 +299,7 @@ class Tongs
 
         $contents = File::get($file);
 
-        if ($this->frontmatter()) {
+        if ($this->frontmatter() && File::extension($file) === 'md') {
             $processor = new YamlProcessor();
             $frontMatter = new FrontMatter($processor);
             $document = $frontMatter->parse($contents);

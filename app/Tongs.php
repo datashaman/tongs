@@ -289,6 +289,7 @@ class Tongs
             ->files()
             ->notPath($this->ignore())
             ->followLinks()
+            ->ignoreDotFiles(false)
             ->in($dir);
 
         return collect($finder)->mapWithKeys(

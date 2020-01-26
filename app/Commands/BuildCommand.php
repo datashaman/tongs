@@ -97,8 +97,11 @@ final class BuildCommand extends Command
 
     protected function plugins(): Collection
     {
-        $basePath = base_path();
-        $packagesPath = getcwd() . '/.cache/packages.php';
+        $cwd = getcwd();
+        $basePath = File::exists("{$cwd}/vendor/composer/installed.json")
+            ? $cwd
+            : base_path();
+        $packagesPath = "{$cwd}/.cache/packages.php";
 
         $manifest = new PackageManifest(
             new Filesystem(),

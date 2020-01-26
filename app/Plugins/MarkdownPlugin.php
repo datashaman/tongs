@@ -16,7 +16,7 @@ final class MarkdownPlugin extends Plugin
             ->mapWithKeys(
                 function ($file, $path) {
                     if (File::extension($path) === 'md') {
-                        return $this->transform($file);
+                        return $this->transform($file, $path);
                     }
 
                     return [

@@ -2,6 +2,6 @@
  * Plugin.
  */
 
-module.exports = function() {
-  throw new Error('Break!')
+module.exports = function () {
+    throw new Error('Break!')
 }

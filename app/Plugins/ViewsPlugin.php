@@ -42,7 +42,8 @@ final class ViewsPlugin extends Plugin
             $compiled = Arr::get($this->options, 'compiled', 'storage/framework/views');
 
             return new BladeCompiler(
-                $app['files'], $compiled
+                $app['files'],
+                $compiled
             );
         });
     }

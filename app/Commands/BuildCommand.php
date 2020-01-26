@@ -104,7 +104,9 @@ final class BuildCommand extends Command
         $packagesPath = $basePath . '/.cache/packages.php';
 
         $manifest = new PackageManifest(
-            new Filesystem(), $basePath, $packagesPath
+            new Filesystem(),
+            $basePath,
+            $packagesPath
         );
 
         $manifest->build();

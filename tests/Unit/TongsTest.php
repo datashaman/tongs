@@ -16,10 +16,6 @@ use Illuminate\Support\Facades\File;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
 
-class NoopPlugin extends Plugin
-{
-}
-
 class TongsTest extends TestCase
 {
     /**
@@ -57,7 +53,9 @@ class TongsTest extends TestCase
     public function testUseAddPluginToStack()
     {
         $tongs = new Tongs($this->directory);
-        $tongs->use(new NoopPlugin($tongs));
+        $plugin = new class ($tongs) extends Plugin {
+        };
+        $tongs->use($plugin);
         $this->assertCount(1, $tongs->plugins());
     }
 
@@ -329,7 +327,7 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->fixture());
 
-        $plugin = new class($tongs) extends Plugin {
+        $plugin = new class ($tongs) extends Plugin {
             public function handle(Collection $files, callable $next): Collection
             {
                 assert($files['one'] == 'one');
@@ -365,7 +363,7 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->fixture('basic-plugin'));
 
-        $plugin = new class($tongs) extends Plugin {
+        $plugin = new class ($tongs) extends Plugin {
             public function handle(Collection $files, callable $next): Collection
             {
                 $files = $files
@@ -410,7 +408,7 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->fixture('basic-plugin'));
 
-        $plugin = new class($tongs) extends Plugin {
+        $plugin = new class ($tongs) extends Plugin {
             public function handle(Collection $files, callable $next): Collection
             {
                 $files = $files

@@ -35,7 +35,9 @@ final class MarkdownPlugin extends Plugin
         $file['contents'] = $parser->text($file['contents']);
         $path = preg_replace('/\.md$/', '.html', $path);
 
-        return $file;
+        return [
+            $path => $file,
+        ];
     }
 
     protected function getParser(): Parsedown

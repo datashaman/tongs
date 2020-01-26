@@ -58,10 +58,12 @@ final class BuildCommand extends Command
             $tongs->ignore($config['ignore']);
         }
 
+        $overrides = Arr::get($config, 'overrides', []);
+
         collect(Arr::get($config, 'plugins', []))
             ->each(
-                function ($options, $key) use ($plugins, $tongs) {
-                    $class = Arr::get($plugins, $key);
+                function ($options, $key) use ($overrides, $plugins, $tongs) {
+                    $class = Arr::get($overrides, $key, Arr::get($plugins, $key));
 
                     if (!$class) {
                         $this->error('Plugin not found: ' . $key);

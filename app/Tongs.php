@@ -58,7 +58,7 @@ class Tongs
 
     /**
      * @var
-    /**
+     *
      * @param string $directory The working directory path.
      */
     public function __construct(string $directory)

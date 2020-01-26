@@ -43,6 +43,7 @@
         "drafts": "Datashaman\\Tongs\\Plugins\\DraftsPlugin",
         "markdown": "Datashaman\\Tongs\\Plugins\\MarkdownPlugin",
         "sass": "Datashaman\\Tongs\\Plugins\\SassPlugin",
+        "serve": "Datashaman\\Tongs\\Plugins\\ServePlugin",
         "views": "Datashaman\\Tongs\\Plugins\\ViewsPlugin"
       }
     }

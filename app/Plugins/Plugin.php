@@ -20,12 +20,21 @@ abstract class Plugin
     protected $options;
 
     /**
-     * @param Tongs $tongs
      * @param array $options
      */
-    public function __construct(Tongs $tongs, array $options = [])
+    public function __construct(array $options = [])
     {
-        $this->tongs = $tongs;
         $this->options = collect($options);
+    }
+
+    public function tongs(Tongs $tongs = null)
+    {
+        if (is_null($tongs)) {
+            return $this->tongs;
+        }
+
+        $this->tongs = $tongs;
+
+        return $this;
     }
 }

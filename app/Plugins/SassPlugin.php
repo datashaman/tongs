@@ -60,7 +60,7 @@ final class SassPlugin extends Plugin
      */
     protected function command(array $file, string $path): array
     {
-        $fullPath = $this->tongs->source() . DIRECTORY_SEPARATOR . $path;
+        $fullPath = $this->tongs()->source() . DIRECTORY_SEPARATOR . $path;
 
         $options = $this->options
             ->map(

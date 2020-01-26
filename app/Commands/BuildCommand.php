@@ -70,10 +70,7 @@ final class BuildCommand extends Command
                         exit(-1);
                     }
 
-                    $plugin = $options === true
-                        ? new $class($tongs)
-                        : new $class($tongs, $options);
-
+                    $plugin = $options === true ? new $class() : new $class($options);
                     $tongs->use($plugin);
                 }
             );
@@ -100,8 +97,8 @@ final class BuildCommand extends Command
 
     protected function plugins(): Collection
     {
-        $basePath = getcwd();
-        $packagesPath = $basePath . '/.cache/packages.php';
+        $basePath = base_path();
+        $packagesPath = getcwd() . '/.cache/packages.php';
 
         $manifest = new PackageManifest(
             new Filesystem(),

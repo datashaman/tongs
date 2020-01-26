@@ -53,7 +53,7 @@ class TongsTest extends TestCase
     public function testUseAddPluginToStack()
     {
         $tongs = new Tongs($this->directory);
-        $plugin = new class ($tongs) extends Plugin {
+        $plugin = new class () extends Plugin {
         };
         $tongs->use($plugin);
         $this->assertCount(1, $tongs->plugins());
@@ -327,7 +327,7 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->fixture());
 
-        $plugin = new class ($tongs) extends Plugin {
+        $plugin = new class () extends Plugin {
             public function handle(Collection $files, callable $next): Collection
             {
                 assert($files['one'] == 'one');
@@ -363,7 +363,7 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->fixture('basic-plugin'));
 
-        $plugin = new class ($tongs) extends Plugin {
+        $plugin = new class () extends Plugin {
             public function handle(Collection $files, callable $next): Collection
             {
                 $files = $files
@@ -408,7 +408,7 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->fixture('basic-plugin'));
 
-        $plugin = new class ($tongs) extends Plugin {
+        $plugin = new class () extends Plugin {
             public function handle(Collection $files, callable $next): Collection
             {
                 $files = $files

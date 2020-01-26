@@ -57,6 +57,11 @@ class Tongs
     protected $frontmatter = true;
 
     /**
+     * @var array<callable>
+     */
+    protected $built = [];
+
+    /**
      * @var
      *
      * @param string $directory The working directory path.
@@ -73,7 +78,8 @@ class Tongs
      */
     public function use(Plugins\Plugin $plugin): self
     {
-        array_push($this->plugins, $plugin);
+        $plugin->tongs($this);
+        $this->plugins[] = $plugin;
 
         return $this;
     }
@@ -222,6 +228,13 @@ class Tongs
                 $done(null, $files);
             }
 
+            collect($this->built)
+                ->each(
+                    function ($callable) use ($files) {
+                        $callable($files);
+                    }
+                );
+
             return $files;
         } catch (Exception $exception) {
             if ($done) {
@@ -357,5 +370,12 @@ class Tongs
         }
 
         return $file;
+    }
+
+    public function built(callable $callable)
+    {
+        $this->built[] = $callable;
+
+        return $this;
     }
 }

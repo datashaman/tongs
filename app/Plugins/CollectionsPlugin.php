@@ -11,7 +11,7 @@ final class CollectionsPlugin extends Plugin
 {
     public function handle(Collection $files, callable $next): Collection
     {
-        $metadata = $this->tongs->metadata();
+        $metadata = $this->tongs()->metadata();
 
         $keys = $this->options->keys();
 
@@ -56,7 +56,7 @@ final class CollectionsPlugin extends Plugin
             $metadata['collections'][$key] = $metadata[$key];
         }
 
-        $this->tongs->metadata($metadata);
+        $this->tongs()->metadata($metadata);
 
         return $next($files);
     }

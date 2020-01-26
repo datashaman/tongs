@@ -13,9 +13,9 @@ use Illuminate\View\FileViewFinder;
 
 final class ViewsPlugin extends Plugin
 {
-    public function __construct(Tongs $tongs, array $options = [])
+    public function __construct(array $options = [])
     {
-        parent::__construct($tongs, $options);
+        parent::__construct($options);
 
         $this->registerViewFinder();
         $this->registerBladeCompiler();
@@ -56,7 +56,7 @@ final class ViewsPlugin extends Plugin
                     $view = Arr::get($file, 'view');
 
                     $locals = array_merge(
-                        $this->tongs->metadata(),
+                        $this->tongs()->metadata(),
                         $file
                     );
 

@@ -47,6 +47,7 @@
         "markdown": "Datashaman\\Tongs\\Plugins\\MarkdownPlugin",
         "sass": "Datashaman\\Tongs\\Plugins\\SassPlugin",
         "serve": "Datashaman\\Tongs\\Plugins\\ServePlugin",
+        "tap": "Datashaman\\Tongs\\Plugins\\TapPlugin",
         "views": "Datashaman\\Tongs\\Plugins\\ViewsPlugin"
       }
     }

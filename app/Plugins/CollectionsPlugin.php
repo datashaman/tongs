@@ -13,51 +13,119 @@ final class CollectionsPlugin extends Plugin
     {
         $metadata = $this->tongs()->metadata();
 
+        $metadata['collections'] = function () use ($files) {
+            return $this->collections($files);
+        };
+
+        $this->tongs()->metadata($metadata);
+
+        return $next($files);
+    }
+
+    protected function collections(Collection $files): Collection
+    {
         $keys = $this->options->keys();
 
-        foreach ($keys as $key) {
-            $metadata[$key] = [];
-        }
+        $collections = $this->options
+            ->map(
+                function() {
+                    return [];
+                }
+            );
 
-        $files
-            ->each(
-                function ($file, $path) use ($keys, &$metadata) {
-                    collect(Arr::get($file, 'collection'))
-                        ->each(
-                            function ($key) use ($file, $keys, &$metadata) {
-                                if (!$keys->contains($key)) {
+        $collections = $files
+            ->keys()
+            ->reduce(
+                function ($collections, $path) use ($files, $keys) {
+                    $file = $files[$path];
+
+                    $metadata = collect(Arr::get($file, 'collection'))
+                        ->reduce(
+                            function ($collections, $key) use ($file, $keys) {
+                                if ($keys->contains($key)) {
+                                    $collection = $collections[$key];
+                                } else {
                                     $keys->push($key);
-                                    $metadata[$key] = [];
+                                    $collection = [];
                                 }
-                                $metadata[$key][] = $file;
-                            }
+
+                                $collection[] = $file;
+                                $collections[$key] = $collection;
+
+                                return $collections;
+                            },
+                            $collections
                         );
 
-                    collect($this->options)
-                        ->each(
-                            static function ($defn, $key) use ($file, &$metadata, $path): void {
+                    $collections = collect($this->options)
+                        ->keys()
+                        ->reduce(
+                            function ($collections, $key) use (&$file, $path) {
+                                $defn = $this->options[$key];
+
                                 if (is_string($defn)) {
                                     $defn = [
                                         'pattern' => $defn,
                                     ];
                                 }
 
-                                if (Arr::get($defn, 'pattern') && fnmatch($defn['pattern'], $path)) {
-                                    $metadata[$key][] = $file;
+                                $patterns = (array) $defn['pattern'];
+
+                                if ($patterns) {
+                                    foreach ($patterns as $pattern) {
+                                        if (fnmatch($pattern, $path)) {
+                                            $collection = $collections[$key];
+                                            $collection[] = $file;
+                                            $collections[$key] = $collection;
+                                        }
+                                    }
                                 }
-                            }
+
+                                return $collections;
+                            },
+                            $collections
                         );
+
+                    return $collections;
+                },
+                $collections
+            );
+
+        foreach ($keys as $key) {
+            $settings = $this->options[$key];
+            $sort = Arr::get($settings, 'sortBy', 'date');
+            $collection = collect($collections[$key]);
+
+            if (Arr::get($settings, 'reverse', true)) {
+                $collection = $collection->sortByDesc($sort)->values();
+            } else {
+                $collection = $collection->sortBy($sort)->values();
+            }
+
+            $collection = Arr::get($settings, 'limit')
+                ? $collection->take($settings['limit'])
+                : $collection;
+
+            $count = $collection->count();
+
+            $collection = $collection->map(
+                function ($file, $index) use ($collection, $count) {
+                    if ($index === 0 && $count > 1) {
+                        $file['next'] = $collection[1];
+                    } else if ($index === $count - 1 && $count > 1) {
+                        $file['previous'] = $collection[$index - 1];
+                    } else {
+                        $file['previous'] = $collection[$index - 1];
+                        $file['next'] = $collection[$index + 1];
+                    }
+
+                    return $file;
                 }
             );
 
-        $metadata['collections'] = [];
-
-        foreach ($keys as $key) {
-            $metadata['collections'][$key] = $metadata[$key];
+            $collections[$key] = $collection->all();
         }
 
-        $this->tongs()->metadata($metadata);
-
-        return $next($files);
+        return $collections;
     }
 }

@@ -107,7 +107,9 @@ class Tongs
     public function metadata(array $metadata = null)
     {
         if (is_null($metadata)) {
-            return $this->metadata;
+            return collect($this->metadata)
+                ->map('value')
+                ->all();
         }
 
         $this->metadata = $metadata;

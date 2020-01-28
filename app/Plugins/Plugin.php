@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Datashaman\Tongs\Plugins;
 
 use Datashaman\Tongs\Tongs;
-use Illuminate\Filesystem\FilesystemAdapter;
 
 abstract class Plugin
 {

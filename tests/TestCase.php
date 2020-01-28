@@ -15,7 +15,7 @@ abstract class TestCase extends BaseTestCase
      * Assert that two directories are equal.
      *
      * @param string $xpected Path to expected folder structure.
-     * @param string $actual Path to actual folder structure.
+     * @param string $actual Storage disk for destination.
      */
     protected function assertEqualDirectories(string $expected, string $actual)
     {

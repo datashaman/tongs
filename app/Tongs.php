@@ -9,9 +9,9 @@ use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use SplFileInfo;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Filesystem\FilesystemInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Webuni\FrontMatter\FrontMatter;
 
 class Tongs
@@ -37,16 +37,6 @@ class Tongs
     protected $metadata = [];
 
     /**
-     * @var string
-     */
-    protected $source = 'src';
-
-    /**
-     * @var string
-     */
-    protected $destination = 'build';
-
-    /**
      * @var bool
      */
     protected $clean = true;
@@ -69,6 +59,8 @@ class Tongs
     public function __construct(string $directory)
     {
         $this->directory = $directory;
+        $this->source('src');
+        $this->destination('build');
     }
 
     /**
@@ -118,33 +110,59 @@ class Tongs
     }
 
     /**
-     * @param string $source
+     * @param array|string $source
      *
-     * @return string|self
+     * @return FilesystemInterface|self
      */
-    public function source(string $path = null)
+    public function source($source = null)
     {
-        if (is_null($path)) {
-            return $this->path($this->source);
+        if (is_null($source)) {
+            return Storage::disk('source');
         }
 
-        $this->source = $path;
+        if (is_string($source)) {
+            $filesystem = resolve(Filesystem::class);
+
+            $root = $filesystem->isAbsolutePath($source)
+                ? $source
+                : "{$this->directory()}/{$source}";
+
+            $source = [
+                'driver' => 'local',
+                'root' => $root,
+            ];
+        }
+
+        config(['filesystems.disks.source' => $source]);
 
         return $this;
     }
 
     /**
-     * @param string $destination
+     * @param array|string $destination
      *
-     * @return string|self
+     * @return FilesystemInterface|self
      */
-    public function destination(string $path = null)
+    public function destination($destination = null)
     {
-        if (is_null($path)) {
-            return $this->path($this->destination);
+        if (is_null($destination)) {
+            return Storage::disk('destination');
         }
 
-        $this->destination = $path;
+        if (is_string($destination)) {
+            $filesystem = resolve(Filesystem::class);
+
+            $root = $filesystem->isAbsolutePath($destination)
+                ? $destination
+                : "{$this->directory()}/{$destination}";
+
+            $destination = [
+                'driver' => 'local',
+                'root' => $root,
+            ];
+        }
+
+        config(['filesystems.disks.destination' => $destination]);
 
         return $this;
     }
@@ -216,55 +234,36 @@ class Tongs
         return implode(DIRECTORY_SEPARATOR, $paths);
     }
 
-    public function build(callable $done = null)
+    public function build()
     {
-        try {
-            if ($this->clean()) {
-                File::deleteDirectory($this->destination());
-            }
-
-            $files = $this->process();
-            $files = $this->write($files->all());
-
-            if ($done) {
-                $done(null, $files);
-            }
-
-            collect($this->built)
+        if ($this->clean()) {
+            collect($this->destination()->listContents('/', true))
                 ->each(
-                    function ($callable) use ($files) {
-                        $callable($files);
+                    function ($entry) {
+                        $this->destination()->delete($entry['path']);
                     }
                 );
-
-            return $files;
-        } catch (Exception $exception) {
-            if ($done) {
-                $done($exception);
-            } else {
-                throw $exception;
-            }
         }
+
+        $files = $this->process();
+        $files = $this->write($files->all());
+
+        collect($this->built)
+            ->each(
+                function ($callable) use ($files) {
+                    $callable($files);
+                }
+            );
+
+        return $files;
     }
 
-    public function process(callable $done = null)
+    public function process()
     {
-        try {
-            $files = $this->read();
-            $files = $this->run($files->all());
+        $files = $this->read();
+        $files = $this->run($files->all());
 
-            if ($done) {
-                $done(null, $files);
-            }
-
-            return $files;
-        } catch (Exception $exception) {
-            if ($done) {
-                $done($exception);
-            } else {
-                throw $exception;
-            }
-        }
+        return $files;
     }
 
     public function plugins(): array
@@ -282,40 +281,32 @@ class Tongs
             ->thenReturn();
     }
 
-    public function read(string $dir = null)
+    public function read(string $dir = '/')
     {
-        $dir = $dir ?: $this->source();
+        $entries = $this->source()->listContents($dir, true);
 
-        $finder = new Finder();
-        $finder
-            ->files()
-            ->notPath($this->ignore())
-            ->followLinks()
-            ->ignoreDotFiles(false)
-            ->in($dir);
-
-        return collect($finder)->mapWithKeys(
-            function ($file) {
-                return [
-                    $file->getRelativePathname() => $this->readFile($file->getPathname()),
-                ];
-            }
-        );
+        return collect($entries)
+            ->reject(
+                function ($entry) {
+                    return $entry['basename'] === $entry['filename'] && !isset($entry['size']);
+                }
+            )
+            ->mapWithKeys(
+                function ($entry) {
+                    return [
+                        $entry['path'] => $this->readFile($entry['path']),
+                    ];
+                }
+            );
     }
 
-    public function readFile(string $file): array
+    public function readFile(string $path): array
     {
-        $src = $this->source();
         $ret = [];
 
-        $filesystem = resolve(Filesystem::class);
-        if (!($filesystem->isAbsolutePath($file))) {
-            $file = "{$src}/{$file}";
-        }
+        $contents = $this->source()->get($path);
 
-        $contents = File::get($file);
-
-        if ($this->frontmatter() && File::extension($file) === 'md') {
+        if ($this->frontmatter() && File::extension($path) === 'md') {
             $processor = new YamlProcessor();
             $frontMatter = new FrontMatter($processor);
             $document = $frontMatter->parse($contents);
@@ -330,47 +321,26 @@ class Tongs
         }
 
         $ret['contents'] = $contents;
-        $fileInfo = new SplFileInfo($file);
-        $ret['mode'] = substr(base_convert((string) $fileInfo->getPerms(), 10, 8), -4);
 
         return $ret;
     }
 
-    public function write(array $files, string $dir = null): Collection
+    public function write(array $files): Collection
     {
-        $dir = $dir ?: $this->destination();
-
         return collect($files)
             ->map(
-                function ($file, $key) use ($dir) {
-                    $pathname = (new SplFileInfo("{$dir}/{$key}"))->getPathname();
-
-                    return $this->writeFile($pathname, $file);
+                function ($file, $path) {
+                    return $this->writeFile($path, $file);
                 }
             );
     }
 
     public function writeFile(string $path, array $file)
     {
-        $dest = $this->destination();
-
-        $filesystem = resolve(Filesystem::class);
-        if (!($filesystem->isAbsolutePath($path))) {
-            $path = "{$dest}/{$path}";
-        }
-
-        File::makeDirectory(
-            File::dirname($path),
-            0755,
-            true,
-            true
+        $this->destination()->put(
+            $path,
+            $file['contents']
         );
-
-        File::put($path, $file['contents']);
-
-        if (Arr::has($file, 'mode')) {
-            File::chmod($path, octdec($file['mode']));
-        }
 
         return $file;
     }

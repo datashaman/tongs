@@ -45,7 +45,7 @@ class PackageManifest
     /**
      * Create a new package manifest instance.
      *
-     * @param  \Illuminate\Filesystem\Filesystem  $files
+     * @param  \Illuminate\Filesystem\Filesystem $files
      * @param  string  $basePath
      * @param  string  $manifestPath
      * @return void

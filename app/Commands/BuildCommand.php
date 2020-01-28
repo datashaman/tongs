@@ -77,7 +77,7 @@ final class BuildCommand extends Command
 
         $files = $tongs->build();
 
-        $this->info('Successfully built ' . $files->count() . ' files to ' . $tongs->destination());
+        $this->info('Successfully built ' . $files->count() . ' files');
     }
 
     protected function config(): array
@@ -90,7 +90,8 @@ final class BuildCommand extends Command
         }
 
         $defaults = ['source' => 'src', 'destination' => 'build'];
-        $config = json_decode(File::get($configFile), true);
+
+        $config = json_decode(File::get($configFile), true, 512, JSON_THROW_ON_ERROR);
 
         return array_merge($defaults, $config);
     }

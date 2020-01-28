@@ -14,7 +14,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use SplFileInfo;
-use Symfony\Component\Finder\Finder;
 
 class TongsTest extends TestCase
 {
@@ -34,14 +33,20 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->directory);
         $this->assertTrue((bool) $tongs->source());
-        $this->assertEquals($this->fixture('src'), $tongs->source());
+        $this->assertEquals(
+            realpath($this->fixture('src')),
+            realpath($tongs->source()->path(''))
+        );
     }
 
     public function testDefaultDestination()
     {
         $tongs = new Tongs($this->directory);
         $this->assertTrue((bool) $tongs->destination());
-        $this->assertEquals($this->fixture('build'), $tongs->destination());
+        $this->assertEquals(
+            realpath($this->fixture('build')),
+            realpath($tongs->destination()->path(''))
+        );
     }
 
     public function testDefaultClean()
@@ -95,28 +100,40 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->directory);
         $tongs->source('dir');
-        $this->assertEquals($this->fixture('dir'), $tongs->source());
+        $this->assertEquals(
+            realpath($this->fixture('dir')),
+            realpath($tongs->source()->path(''))
+        );
     }
 
     public function testSourceSetAbsolute()
     {
         $tongs = new Tongs($this->directory);
-        $tongs->source('/dir');
-        $this->assertEquals('/dir', $tongs->source());
+        $tongs->source('/tmp');
+        $this->assertEquals(
+            realpath('/tmp'),
+            realpath($tongs->source()->path(''))
+        );
     }
 
     public function testDestinationSet()
     {
         $tongs = new Tongs($this->directory);
         $tongs->destination('dir');
-        $this->assertEquals($this->fixture('dir'), $tongs->destination());
+        $this->assertEquals(
+            realpath($this->fixture('dir')),
+            realpath($tongs->destination()->path(''))
+        );
     }
 
     public function testDestinationSetAbsolute()
     {
         $tongs = new Tongs($this->directory);
-        $tongs->destination('/dir');
-        $this->assertEquals('/dir', $tongs->destination());
+        $tongs->destination('/tmp');
+        $this->assertEquals(
+            realpath('/tmp'),
+            realpath($tongs->destination()->path(''))
+        );
     }
 
     public function testCleanSet()
@@ -164,22 +181,6 @@ class TongsTest extends TestCase
                 "index.md" => [
                     "title" => "A Title",
                     "contents" => "body",
-                    "mode" => "0644",
-                ],
-            ]),
-            $tongs->read()
-        );
-    }
-
-    public function testReadSymbolicLink()
-    {
-        $tongs = new Tongs($this->fixture('read-symbolic-link'));
-        $this->assertEquals(
-            collect([
-                "dir/index.md" => [
-                    "title" => "A Title",
-                    "contents" => "body",
-                    "mode" => "0644",
                 ],
             ]),
             $tongs->read()
@@ -189,29 +190,15 @@ class TongsTest extends TestCase
     public function testReadProvidedDirectory()
     {
         $tongs = new Tongs($this->fixture('read-dir'));
+        $actual = $tongs->read('dir');
         $this->assertEquals(
             collect([
-                "index.md" => [
+                "dir/index.md" => [
                     "title" => "A Title",
                     "contents" => "body",
-                    "mode" => "0644",
                 ],
             ]),
-            $tongs->read($this->fixture('read-dir/dir'))
-        );
-    }
-
-    public function testReadMode()
-    {
-        $tongs = new Tongs($this->fixture('read-mode'));
-        $this->assertEquals(
-            collect([
-                "bin" => [
-                    "contents" => "echo test",
-                    "mode" => "0755",
-                ],
-            ]),
-            $tongs->read()
+            $actual
         );
     }
 
@@ -233,7 +220,6 @@ class TongsTest extends TestCase
                     "title" => "A Title",
                     "date" => new DateTime('2013-12-02'),
                     "contents" => "body",
-                    "mode" => "0644",
                 ],
             ]),
             $tongs->read()
@@ -247,7 +233,6 @@ class TongsTest extends TestCase
             [
                 "title" => "A Title",
                 "contents" => "body",
-                "mode" => "0644",
             ],
             $tongs->readFile('index.md')
         );
@@ -285,21 +270,6 @@ class TongsTest extends TestCase
         $dir = $this->fixture('write-dir/out');
         $tongs->write($files, $dir);
         $this->assertEqualDirectories($this->fixture('write-dir/expected'), $this->fixture('write-dir/out'));
-    }
-
-    public function testWriteMode()
-    {
-        $tongs = new Tongs($this->fixture('write-mode'));
-        $files = [
-            'bin' => [
-                'contents' => 'echo test',
-                'mode' => '0777',
-            ],
-        ];
-        $tongs->write($files);
-        $fileInfo = new SplFileInfo($this->fixture('write-mode/build/bin'));
-        $mode = substr(decoct($fileInfo->getPerms()), -4);
-        $this->assertEquals('0777', $mode);
     }
 
     public function testWriteFile()

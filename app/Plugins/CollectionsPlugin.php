@@ -51,7 +51,7 @@ final class CollectionsPlugin extends Plugin
                         $collections[$key] = [];
                     }
 
-                    $collections[$key][] = $file;
+                    $collections[$key][$path] = $file;
                 }
             }
 
@@ -64,7 +64,7 @@ final class CollectionsPlugin extends Plugin
 
                 foreach ($patterns as $pattern) {
                     if (fnmatch($pattern, $path)) {
-                        $collections[$key][] = $file;
+                        $collections[$key][$path] = $file;
                     }
                 }
             }
@@ -76,14 +76,14 @@ final class CollectionsPlugin extends Plugin
                 $reverse = $settings['reverse'] ?? true;
 
                 if ($reverse) {
-                    usort(
+                    uasort(
                         $collections[$key],
                         function ($b, $a) use ($sort) {
                             return fileCmp($a[$sort], $b[$sort]);
                         }
                     );
                 } else {
-                    usort(
+                    uasort(
                         $collections[$key],
                         function ($a, $b) use ($sort) {
                             return fileCmp($a[$sort], $b[$sort]);
@@ -102,14 +102,16 @@ final class CollectionsPlugin extends Plugin
 
             $count = count($collections[$key]);
 
-            foreach ($collections[$key] as $index => &$file) {
-                if ($index === 0 && $count > 1) {
-                    $file['next'] = $collections[$key][1];
-                } else if ($index === $count - 1 && $count > 1) {
-                    $file['previous'] = $collections[$key][$index - 1];
-                } else {
-                    $file['previous'] = $collections[$key][$index - 1];
-                    $file['next'] = $collections[$key][$index + 1];
+            if ($count > 1) {
+                foreach ($collections[$key] as $index => &$file) {
+                    if ($index === 0 && $count > 1) {
+                        $file['next'] = $collections[$key][1];
+                    } else if ($index === $count - 1 && $count > 1) {
+                        $file['previous'] = $collections[$key][$index - 1];
+                    } else {
+                        $file['previous'] = $collections[$key][$index - 1];
+                        $file['next'] = $collections[$key][$index + 1];
+                    }
                 }
             }
         }

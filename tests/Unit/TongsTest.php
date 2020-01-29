@@ -100,8 +100,8 @@ class TongsTest extends TestCase
         $tongs = new Tongs($this->directory);
         $tongs->source('dir');
         $this->assertEquals(
-            realpath($this->fixture('dir')),
-            realpath($tongs->source()->path(''))
+            rtrim($this->fixture('dir'), '/'),
+            rtrim($tongs->source()->path(''), '/')
         );
     }
 

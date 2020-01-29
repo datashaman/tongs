@@ -29,7 +29,7 @@ For example:
         }
     }
 
-Will create two collections in metadata at `$collections['posts']` and `$collections['other']`. If you also add `collection: featured` to posts' frontmatter, you can access the collection of those posts at `$collection['featured']`.
+Will create two collections in metadata at `$collections['posts']` and `$collections['other']`. If you also add `collection: featured` to posts' frontmatter, you can access the collection of those posts at `$collections['featured']`.
 
 ### drafts
 

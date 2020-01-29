@@ -25,8 +25,7 @@ final class CollectionsPlugin extends Plugin
     {
         $metadata = $this->tongs()->metadata();
 
-        $key = $this->options->get('key', 'collections');
-        $metadata[$key] = function () use ($files) {
+        $metadata['collections'] = function () use ($files) {
             return $this->collections($files);
         };
 

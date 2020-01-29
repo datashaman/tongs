@@ -49,7 +49,9 @@ jobs:
     needs:
       - mergepal
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          ref: master
 
       - name: Tag release
         uses: K-Phoen/semver-release-action@master

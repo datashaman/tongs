@@ -26,3 +26,5 @@ More plugin packages:
 * `permalinks` in [datashaman/tongs-permalinks](http://github.com/datashaman/tongs-permalinks)
 
 To create your own plugins, look at the [plugin template](https://github.com/datashaman/tongs-plugin).
+
+TEST

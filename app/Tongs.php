@@ -367,7 +367,7 @@ class Tongs
     {
         $putFile = true;
 
-        if ($this->destination()->has($path)) {
+        if (!$this->clean() && $this->destination()->has($path)) {
             $adapter = $this->destination()->getAdapter();
 
             if ($adapter instanceof CachedAdapter) {

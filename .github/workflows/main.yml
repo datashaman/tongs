@@ -43,3 +43,17 @@ jobs:
       - uses: maxkomarychev/merge-pal-action@v0.5.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs:
+      - mergepal
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Tag release
+        uses: K-Phoen/semver-release-action@master
+        with:
+          release_branch: master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

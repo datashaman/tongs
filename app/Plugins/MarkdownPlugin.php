@@ -4,40 +4,27 @@ declare(strict_types=1);
 
 namespace Datashaman\Tongs\Plugins;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Parsedown;
 
 final class MarkdownPlugin extends Plugin
 {
-    public function handle(Collection $files, callable $next): Collection
+    public function handle(array $files, callable $next): array
     {
-        $files = $files
-            ->mapWithKeys(
-                function ($file, $path) {
-                    if (File::extension($path) === 'md') {
-                        return $this->transform($file, $path);
-                    }
+        $ret = [];
 
-                    return [
-                        $path => $file,
-                    ];
-                }
-            );
+        foreach ($files as $path => $file) {
+            if (File::extension($path) === 'md') {
+                $path = preg_replace('/\.md$/', '.html', $path);
 
-        return $next($files);
-    }
+                $parser = $this->getParser();
+                $file['contents'] = $parser->text($file['contents']);
+            }
 
-    protected function transform(array $file, string $path): array
-    {
-        $parser = $this->getParser();
+            $ret[$path] = $file;
+        }
 
-        $file['contents'] = $parser->text($file['contents']);
-        $path = preg_replace('/\.md$/', '.html', $path);
-
-        return [
-            $path => $file,
-        ];
+        return $next($ret);
     }
 
     protected function getParser(): Parsedown

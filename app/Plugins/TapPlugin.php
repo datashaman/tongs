@@ -2,11 +2,9 @@
 
 namespace Datashaman\Tongs\Plugins;
 
-use Illuminate\Support\Collection;
-
 class TapPlugin extends Plugin
 {
-    public function handle(Collection $files, callable $next): Collection
+    public function handle(array $files, callable $next): array
     {
         dump($files);
 

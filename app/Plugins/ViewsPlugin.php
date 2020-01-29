@@ -6,7 +6,6 @@ namespace Datashaman\Tongs\Plugins;
 
 use Datashaman\Tongs\Tongs;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\View\Compilers\BladeCompiler;
 use Illuminate\View\Factory;
 use Illuminate\View\FileViewFinder;
@@ -48,39 +47,32 @@ final class ViewsPlugin extends Plugin
         });
     }
 
-    public function handle(Collection $files, callable $next): Collection
+    public function handle(array $files, callable $next): array
     {
-        $files = $files
-            ->map(
-                function (array $file) {
-                    $view = Arr::get($file, 'view');
+        foreach ($files as &$file) {
+            if (isset($file['view'])) {
+                $locals = array_merge(
+                    $this->tongs()->metadata(),
+                    $file
+                );
 
-                    $locals = array_merge(
-                        $this->tongs()->metadata(),
-                        $file
-                    );
-
-                    if ($view) {
-                        $file['contents'] = $this->view($view, $locals);
-                    }
-
-                    return $file;
-                }
-            );
+                $file['contents'] = $this->view($file['view'], $locals);
+            }
+        }
 
         return $next($files);
     }
 
     /**
      * @param string $view
-     * @param array $data
+     * @param array $locals
      *
      * @return string
      */
     protected function view(
         string $view,
-        array $data = []
+        array $locals = []
     ): string {
-        return app(Factory::class)->make($view, $data)->render();
+        return app(Factory::class)->make($view, $locals)->render();
     }
 }

@@ -11,7 +11,6 @@ use DateTime;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use SplFileInfo;
 
@@ -52,7 +51,7 @@ class TongsTest extends TestCase
     public function testDefaultClean()
     {
         $tongs = new Tongs($this->directory);
-        $this->assertTrue($tongs->clean());
+        $this->assertFalse($tongs->clean());
     }
 
     public function testUseAddPluginToStack()
@@ -177,12 +176,12 @@ class TongsTest extends TestCase
     {
         $tongs = new Tongs($this->fixture('read'));
         $this->assertEquals(
-            collect([
+            [
                 "index.md" => [
                     "title" => "A Title",
                     "contents" => "body",
                 ],
-            ]),
+            ],
             $tongs->read()
         );
     }
@@ -192,12 +191,12 @@ class TongsTest extends TestCase
         $tongs = new Tongs($this->fixture('read-dir'));
         $actual = $tongs->read('dir');
         $this->assertEquals(
-            collect([
+            [
                 "dir/index.md" => [
                     "title" => "A Title",
                     "contents" => "body",
                 ],
-            ]),
+            ],
             $actual
         );
     }
@@ -213,15 +212,15 @@ class TongsTest extends TestCase
     public function testReadIgnoreFiles()
     {
         $tongs = new Tongs($this->fixture('basic'));
-        $tongs->ignore('nested');
+        $tongs->ignore('nested*');
         $this->assertEquals(
-            collect([
+            [
                 "index.md" => [
                     "title" => "A Title",
                     "date" => new DateTime('2013-12-02'),
                     "contents" => "body",
                 ],
-            ]),
+            ],
             $tongs->read()
         );
     }
@@ -298,7 +297,7 @@ class TongsTest extends TestCase
         $tongs = new Tongs($this->fixture());
 
         $plugin = new class () extends Plugin {
-            public function handle(Collection $files, callable $next): Collection
+            public function handle(array $files, callable $next): array
             {
                 assert($files['one'] == 'one');
                 $files['two'] = 'two';
@@ -334,16 +333,11 @@ class TongsTest extends TestCase
         $tongs = new Tongs($this->fixture('basic-plugin'));
 
         $plugin = new class () extends Plugin {
-            public function handle(Collection $files, callable $next): Collection
+            public function handle(array $files, callable $next): array
             {
-                $files = $files
-                    ->map(
-                        function ($file) {
-                            $file['contents'] = $file['title'];
-
-                            return $file;
-                        }
-                    );
+                foreach($files as &$file) {
+                    $file['contents'] = $file['title'];
+                }
 
                 return $next($files);
             }
@@ -379,16 +373,11 @@ class TongsTest extends TestCase
         $tongs = new Tongs($this->fixture('basic-plugin'));
 
         $plugin = new class () extends Plugin {
-            public function handle(Collection $files, callable $next): Collection
+            public function handle(array $files, callable $next): array
             {
-                $files = $files
-                    ->map(
-                        function ($file) {
-                            $file['contents'] = $file['title'];
-
-                            return $file;
-                        }
-                    );
+                foreach ($files as &$file) {
+                    $file['contents'] = $file['title'];
+                }
 
                 return $next($files);
             }

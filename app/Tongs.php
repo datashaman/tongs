@@ -7,10 +7,11 @@ namespace Datashaman\Tongs;
 use Exception;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Filesystem\FilesystemInterface;
+use League\Flysystem\Cached\CachedAdapter;
 use Symfony\Component\Filesystem\Filesystem;
 use Webuni\FrontMatter\FrontMatter;
 
@@ -39,7 +40,7 @@ class Tongs
     /**
      * @var bool
      */
-    protected $clean = true;
+    protected $clean = false;
 
     /**
      * @var bool
@@ -61,6 +62,15 @@ class Tongs
         $this->directory = $directory;
         $this->source('src');
         $this->destination('build');
+
+        config(
+            [
+                'cache.stores.file' => [
+                    'driver' => 'file',
+                    'path' => getcwd() . './cache',
+                ]
+            ]
+        );
     }
 
     /**
@@ -154,7 +164,7 @@ class Tongs
 
             $root = $filesystem->isAbsolutePath($destination)
                 ? $destination
-                : "{$this->directory()}/{$destination}";
+                : $this->path($destination);
 
             $destination = [
                 'driver' => 'local',
@@ -237,16 +247,22 @@ class Tongs
     public function build()
     {
         if ($this->clean()) {
-            collect($this->destination()->listContents('/', true))
+            collect($this->destination()->listContents('/'))
                 ->each(
                     function ($entry) {
-                        $this->destination()->delete($entry['path']);
+                        if ($entry['type'] === 'dir') {
+                            $result = $this->destination()->deleteDir($entry['path']);
+                            Log::warning('Delete dir', ['path' => $entry['path'], 'results' => $result]);
+                        } else {
+                            $result = $this->destination()->delete($entry['path']);
+                            Log::warning('Delete file', ['path' => $entry['path'], 'results' => $result]);
+                        }
                     }
                 );
         }
 
         $files = $this->process();
-        $files = $this->write($files->all());
+        $files = $this->write($files);
 
         collect($this->built)
             ->each(
@@ -258,10 +274,10 @@ class Tongs
         return $files;
     }
 
-    public function process()
+    public function process(): array
     {
         $files = $this->read();
-        $files = $this->run($files->all());
+        $files = $this->run($files);
 
         return $files;
     }
@@ -271,33 +287,44 @@ class Tongs
         return $this->plugins;
     }
 
-    public function run(array $files, array $plugins = null)
+    public function run(array $files, array $plugins = null): array
     {
         $plugins = $plugins ?: $this->plugins();
 
         return (new Pipeline())
-            ->send(collect($files))
+            ->send($files)
             ->through($plugins)
             ->thenReturn();
     }
 
-    public function read(string $dir = '/')
+    public function read(string $dir = '/'): array
     {
         $entries = $this->source()->listContents($dir, true);
 
-        return collect($entries)
-            ->reject(
-                function ($entry) {
-                    return $entry['basename'] === $entry['filename'] && !isset($entry['size']);
+        $ret = [];
+
+        foreach ($entries as $entry) {
+            if ($entry['type'] !== 'file') {
+                continue;
+            }
+
+            $ignored = false;
+
+            foreach ($this->ignores as $pattern) {
+                if (fnmatch($pattern, $entry['path'])) {
+                    $ignored = true;
+                    break;
                 }
-            )
-            ->mapWithKeys(
-                function ($entry) {
-                    return [
-                        $entry['path'] => $this->readFile($entry['path']),
-                    ];
-                }
-            );
+            }
+
+            if ($ignored) {
+                continue;
+            }
+
+            $ret[$entry['path']] = $this->readFile($entry['path']);
+        }
+
+        return $ret;
     }
 
     public function readFile(string $path): array
@@ -325,22 +352,52 @@ class Tongs
         return $ret;
     }
 
-    public function write(array $files): Collection
+    public function write(array $files): array
     {
-        return collect($files)
-            ->map(
-                function ($file, $path) {
-                    return $this->writeFile($path, $file);
-                }
-            );
+        $ret = [];
+
+        foreach ($files as $path => $file) {
+            $ret[$path] = $this->writeFile($path, $file);
+        }
+
+        return $ret;
     }
 
-    public function writeFile(string $path, array $file)
+    public function writeFile(string $path, array $file): array
     {
-        $this->destination()->put(
-            $path,
-            $file['contents']
-        );
+        $putFile = true;
+
+        if ($this->destination()->has($path)) {
+            $adapter = $this->destination()->getAdapter();
+
+            if ($adapter instanceof CachedAdapter) {
+                $adapter = $adapter->getAdapter();
+            }
+
+            $metadata = $adapter->getMetadata($path);
+
+            if (Arr::has($metadata, 'etag')) {
+                $remoteEtag = trim($metadata['etag'], '"');
+
+                if (strpos($remoteEtag, '-') !== false) {
+                    Log::warning('Double md5 etag', ['path' => $path]);
+                }
+
+                $localEtag = md5($file['contents']);
+                Log::debug('Etags', ['local' => $localEtag, 'remote' => $remoteEtag]);
+
+                $putFile = $localEtag !== $remoteEtag;
+            }
+        }
+
+        if ($putFile) {
+            $result = $this->destination()->put(
+                $path,
+                $file['contents']
+            );
+
+            Log::info('Put file', ['path' => $path, 'result' => $result]);
+        }
 
         return $file;
     }

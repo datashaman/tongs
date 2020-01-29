@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Datashaman\Tongs\Plugins;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-
 final class ServePlugin extends Plugin
 {
     public function __construct(array $options = [])
@@ -16,12 +13,12 @@ final class ServePlugin extends Plugin
         parent::__construct($options);
     }
 
-    public function handle(Collection $files, callable $next): Collection
+    public function handle(array $files, callable $next): array
     {
         $tongs = $this->tongs();
 
         $tongs->built(
-            function (Collection $files) use ($tongs) {
+            function (array $files) use ($tongs) {
                 $destination = $tongs->destination();
 
                 passthru("php -S {$this->options['host']}:{$this->options['port']} -t {$destination}");

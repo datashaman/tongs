@@ -9,7 +9,6 @@ use Datashaman\Tongs\Tongs;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Env;
 use Illuminate\Support\Facades\File;
 use LaravelZero\Framework\Commands\Command;
@@ -77,7 +76,7 @@ final class BuildCommand extends Command
 
         $files = $tongs->build();
 
-        $this->info('Successfully built ' . $files->count() . ' files');
+        $this->info('Successfully built ' . count($files) . ' files');
     }
 
     protected function config(): array
@@ -96,7 +95,7 @@ final class BuildCommand extends Command
         return array_merge($defaults, $config);
     }
 
-    protected function plugins(): Collection
+    protected function plugins(): array
     {
         $cwd = getcwd();
 
@@ -117,10 +116,13 @@ final class BuildCommand extends Command
 
         $manifest->build();
 
-        $plugins = collect($manifest->plugins());
+        $plugins = $manifest->plugins();
 
         if (File::exists("{$cwd}/composer.json")) {
-            $plugins = $plugins->merge(json_decode(File::get("{$cwd}/composer.json"), true));
+            $plugins = array_merge(
+                $plugins,
+                json_decode(File::get("{$cwd}/composer.json"), true)
+            );
         }
 
         return $plugins;

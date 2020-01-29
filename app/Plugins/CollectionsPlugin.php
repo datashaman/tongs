@@ -103,14 +103,18 @@ final class CollectionsPlugin extends Plugin
             $count = count($collections[$key]);
 
             if ($count > 1) {
-                foreach ($collections[$key] as $index => &$file) {
+                $paths = array_keys($collections[$key]);
+
+                foreach ($paths as $index => $path) {
+                    $file = &$collections[$key][$path];
+
                     if ($index === 0 && $count > 1) {
-                        $file['next'] = $collections[$key][1];
+                        $file['next'] = $paths[1];
                     } else if ($index === $count - 1 && $count > 1) {
-                        $file['previous'] = $collections[$key][$index - 1];
+                        $file['previous'] = $paths[$index - 1];
                     } else {
-                        $file['previous'] = $collections[$key][$index - 1];
-                        $file['next'] = $collections[$key][$index + 1];
+                        $file['previous'] = $paths[$index - 1];
+                        $file['next'] = $paths[$index + 1];
                     }
                 }
             }

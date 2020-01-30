@@ -84,31 +84,9 @@ will convert the content from Markdown to HTML (and rename files) using a [Parse
 
 For example, the above will configure the parser with `setBreaksEnabled(true)` and `setStrictMode(true)`. Consult the [source code](https://github.com/erusev/parsedown/blob/master/Parsedown.php) for the options.
 
-### sass
-
-Render SASS files into CSS.
-
-For example:
-
-    {
-        "plugins": {
-            "sass": {
-                "outputStyle": "compressed"
-            }
-        }
-    }
-
-will invoke the following command:
-
-    node-sass --output-style=compressed $sourcePath
-
-for any file ending in `.sass` and `.scss`. The source will be removed and replaced by a file with `.css` containing the rendered stylesheet.
-
-Bear in mind that your `node_modules` folder will not exist in the cloud if you use a cloud-based _source_ disk. If your _source_ is local, no problem - use `npm` packages in the build.
-
 ### views
 
-Render views and layouts to HTML.
+Render views and layouts to HTML using Blade views.
 
 For example:
 
@@ -123,11 +101,14 @@ For example:
         }
     }
 
+Put `view: post` frontmatter in a post and it will be rendered from `views/post.blade.php` with Blade. Local view variables are made up the post frontmatter and the global metadata values.
+
 More plugin packages:
 
 * `feed` in [datashaman/tongs-feed](http://github.com/datashaman/tongs-feed)
 * `metadata` in [datashaman/tongs-metadata](http://github.com/datashaman/tongs-metadata)
 * `more` in [datashaman/tongs-more](http://github.com/datashaman/tongs-more)
 * `permalinks` in [datashaman/tongs-permalinks](http://github.com/datashaman/tongs-permalinks)
+* `sass` in [datashaman/tongs-sass](http://github.com/datashaman/tongs-sass)
 
 To create your own plugins, look at the [plugin template](https://github.com/datashaman/tongs-plugin).

@@ -8,6 +8,26 @@ Source code for the example site is at [datashaman/tongs-example](https://github
 
 The built files are deployed at [tongs-example.datashaman.com](http://tongs-example.datashaman.com).
 
+## source and destination
+
+The `source` and `destination` configs can be a string or a config array for a Laravel filesystem.
+
+If it's a string, a _local_ filesystem is created with the root set to `directory`/`source` values, where `directory` will be the current working directory if you use the command-line app.
+
+For example:
+
+    {
+        "source": "src",
+        "destination": {
+            "driver": "s3",
+            "region": "eu-west-1",
+            "bucket": "example.com"
+        }
+    }
+
+Will build from `src` directory to the root of an S3 bucket named `example.com` using the default AWS credentials.
+
+
 ## plugins
 
 The following plugins are provided by this package:
